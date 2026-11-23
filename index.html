@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de Estatística</title>
+<style>
+  /* ---------- Cores e medidas usadas em toda a página ---------- */
+  :root {
+    --verde: #1d7a4c;
+    --verde-escuro: #145c38;
+    --verde-claro: #eaf4ee;
+    --verde-texto-escuro: #6fcf97;
+    --preto: #141414;
+    --cinza: #5f6360;
+    --cinza-claro: #f4f5f4;
+    --borda: #dfe2e0;
+    --branco: #ffffff;
+    --vermelho: #b42318;
+    --vermelho-claro: #fdecea;
+    --raio: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--cinza-claro);
+    color: var(--preto);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .escondido { display: none !important; }
+
+  /* ---------- Cabeçalho ---------- */
+  .cabecalho {
+    background: var(--preto);
+    color: var(--branco);
+    padding: 22px 16px;
+  }
+  .cabecalho-conteudo {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .cabecalho h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .cabecalho h1 span { color: var(--verde-texto-escuro); }
+  .cabecalho p {
+    margin: 2px 0 0;
+    color: #b9bdba;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Abas ---------- */
+  .abas {
+    background: var(--branco);
+    border-bottom: 1px solid var(--borda);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .abas-conteudo {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    overflow-x: auto;
+    padding: 0 8px;
+  }
+  .botao-aba {
+    flex: 1 0 auto;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 14px 16px 11px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--cinza);
+    font: inherit;
+  }
+  .botao-aba small {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .botao-aba strong {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .botao-aba:hover { color: var(--preto); }
+  .botao-aba.ativa {
+    color: var(--preto);
+    border-bottom-color: var(--verde);
+  }
+
+  /* ---------- Área principal ---------- */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+  .aba { display: none; }
+  .aba.visivel { display: block; }
+
+  .titulo-aba {
+    margin: 0 0 4px;
+    font-size: 1.6rem;
+  }
+  .descricao-aba {
+    margin: 0 0 20px;
+    color: var(--cinza);
+  }
+
+  .grade {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .cartao {
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+  .grade .cartao { margin-bottom: 0; }
+
+  .cartao h2 {
+    margin: 0 0 16px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--verde);
+  }
+
+  /* ---------- Formulário ---------- */
+  .campo { margin-bottom: 14px; }
+  .campo label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+  .campo input[type="text"],
+  .campo select {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--branco);
+    color: var(--preto);
+  }
+  .campo input:focus,
+  .campo select:focus {
+    outline: 2px solid var(--verde);
+    outline-offset: -1px;
+  }
+  .campo input[readonly],
+  .campo input:disabled {
+    background: var(--cinza-claro);
+    color: var(--cinza);
+  }
+  .opcional {
+    font-weight: 400;
+    color: var(--cinza);
+  }
+  .ajuda {
+    font-size: 0.85rem;
+    color: var(--cinza);
+    margin-top: 4px;
+  }
+
+  .linha-confianca {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .valor-z {
+    background: var(--verde-claro);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .valor-z b { color: var(--verde-escuro); }
+
+  .caixa-marcar {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400 !important;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  .caixa-marcar input { width: 18px; height: 18px; accent-color: var(--verde); }
+
+  .exemplo {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed var(--borda);
+  }
+  .exemplo select {
+    width: 100%;
+    padding: 9px 10px;
+    font: inherit;
+    font-size: 0.9rem;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--branco);
+  }
+
+  .erro-validacao {
+    background: var(--vermelho-claro);
+    color: var(--vermelho);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    margin-top: 14px;
+  }
+
+  .botoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .botao {
+    font: inherit;
+    font-weight: 600;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--preto);
+    background: var(--branco);
+    color: var(--preto);
+  }
+  .botao-principal {
+    background: var(--verde);
+    border-color: var(--verde);
+    color: var(--branco);
+  }
+  .botao-principal:hover { background: var(--verde-escuro); }
+  .botao:not(.botao-principal):hover { background: var(--cinza-claro); }
+
+  /* ---------- Fórmula ---------- */
+  .cartao-formula { background: var(--verde-claro); border-color: #cfe5d8; }
+  .formula {
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    font-size: 1.7rem;
+    text-align: center;
+    padding: 18px 8px;
+    background: var(--branco);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* fração: numerador em cima, denominador embaixo */
+  .fracao {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    margin: 0 4px;
+  }
+  .fracao > span { padding: 0 4px; }
+  .fracao > span:first-child { border-bottom: 1.5px solid currentColor; }
+
+  /* raiz quadrada com a barra por cima */
+  .raiz { white-space: nowrap; }
+  .raiz-conteudo {
+    display: inline-block;
+    border-top: 1.5px solid currentColor;
+    padding: 2px 3px 0;
+  }
+  .parentese { font-size: 2.6rem; vertical-align: middle; font-weight: 300; }
+
+  .legenda {
+    margin: 14px 0 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    font-size: 0.95rem;
+  }
+  .legenda dt {
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--verde-escuro);
+  }
+  .legenda dd { margin: 0; }
+
+  /* ---------- Observação (faixa com borda verde) ---------- */
+  .observacao {
+    border-left: 4px solid var(--verde);
+    background: var(--branco);
+    padding: 10px 14px;
+    margin: 0 0 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Antes de calcular ---------- */
+  .vazio {
+    text-align: center;
+    color: var(--cinza);
+    border-style: dashed;
+  }
+
+  /* ---------- Passo a passo ---------- */
+  .passos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: passo;
+  }
+  .passos li {
+    counter-increment: passo;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cinza-claro);
+  }
+  .passos li:last-child { border-bottom: none; }
+  .passos li::before {
+    content: counter(passo);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--preto);
+    color: var(--branco);
+    font-size: 0.85rem;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+  }
+  .passos .titulo-passo {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--verde-escuro);
+  }
+  .passos .conta {
+    display: block;
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    font-size: 1.2rem;
+    overflow-x: auto;
+    padding: 2px 0;
+  }
+
+  /* ---------- Resposta final ---------- */
+  .cartao-resposta {
+    background: var(--preto);
+    color: var(--branco);
+    border-color: var(--preto);
+  }
+  .cartao-resposta h2 { color: var(--verde-texto-escuro); }
+  .numeros-resposta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .numero-resposta small {
+    display: block;
+    color: #b9bdba;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .numero-resposta strong {
+    font-size: 2.2rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .numero-resposta.destaque strong { color: var(--verde-texto-escuro); }
+  .numero-resposta .detalhe {
+    display: block;
+    font-size: 0.85rem;
+    color: #b9bdba;
+  }
+  .frase-resposta {
+    font-size: 1.2rem;
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid #333;
+  }
+  .nota {
+    margin: 14px 0 0;
+    font-size: 0.85rem;
+    color: #b9bdba;
+  }
+  .alerta {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .alerta-ruim { background: #3a1616; color: #ff9a9a; border: 1px solid #6b2a2a; }
+  .alerta-bom { background: #12301f; color: var(--verde-texto-escuro); border: 1px solid #22573a; }
+
+  /* ---------- Celular ---------- */
+  @media (max-width: 760px) {
+    body { font-size: 16px; }
+    .grade { grid-template-columns: 1fr; }
+    .formula { font-size: 1.35rem; }
+    .numero-resposta strong { font-size: 1.8rem; }
+    .linha-confianca { grid-template-columns: 1fr; }
+    .passos .conta { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <h1>Estatística <span>Aplicada</span></h1>
+    <p>Tamanho da amostra e intervalo de confiança</p>
+  </div>
+</header>
+
+<nav class="abas">
+  <div class="abas-conteudo">
+    <button class="botao-aba ativa" data-aba="aba-am"><small>Tamanho da amostra</small><strong>Média</strong></button>
+    <button class="botao-aba" data-aba="aba-ap"><small>Tamanho da amostra</small><strong>Proporção</strong></button>
+    <button class="botao-aba" data-aba="aba-im"><small>Intervalo de confiança</small><strong>Média</strong></button>
+    <button class="botao-aba" data-aba="aba-ip"><small>Intervalo de confiança</small><strong>Proporção</strong></button>
+    <button class="botao-aba" data-aba="aba-de"><small>Ajuste</small><strong>Diminuir o erro</strong></button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- =========================================================
+       ABA "am" – TAMANHO DA AMOSTRA PARA A MÉDIA
+       ========================================================= -->
+  <section class="aba visivel" id="aba-am">
+    <h2 class="titulo-aba">Tamanho da amostra para a média</h2>
+    <p class="descricao-aba">Quantos elementos preciso pesquisar para estimar a média com o erro desejado?</p>
+
+    <div class="grade">
+      <form class="cartao" id="am-formulario" novalidate>
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select id="am-exemplo" aria-label="Carregar exemplo"></select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label for="am-confianca">Grau de confiança</label>
+            <select id="am-confianca">
+              <option value="90">90%</option>
+              <option value="95" selected>95%</option>
+              <option value="99">99%</option>
+            </select>
+          </div>
+          <div class="valor-z" id="am-z"></div>
+        </div>
+        <div class="campo">
+          <label for="am-desvio">Desvio padrão (σ)</label>
+          <input type="text" id="am-desvio" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="am-erro">Erro (E<sub>m</sub>)</label>
+          <input type="text" id="am-erro" inputmode="decimal" autocomplete="off">
+        </div>
+
+        <div class="erro-validacao escondido" id="am-erro-validacao"></div>
+        <div class="botoes">
+          <button type="submit" class="botao botao-principal">Calcular</button>
+          <button type="button" class="botao botao-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmula</h2>
+        <div class="formula">
+          <i>n</i> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span><i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+        </div>
+        <dl class="legenda">
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>σ</dt><dd>desvio padrão populacional</dd>
+          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="cartao vazio" id="am-vazio">Preencha os dados (ou carregue um exemplo) e clique em <b>Calcular</b>.</div>
+    <div class="escondido" id="am-resultados">
+      <div class="cartao">
+        <h2>Passo a passo</h2>
+        <ol class="passos" id="am-passos"></ol>
+      </div>
+      <div class="cartao cartao-resposta">
+        <h2>Resposta</h2>
+        <div id="am-resposta"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA "ap" – TAMANHO DA AMOSTRA PARA A PROPORÇÃO
+       ========================================================= -->
+  <section class="aba" id="aba-ap">
+    <h2 class="titulo-aba">Tamanho da amostra para a proporção</h2>
+    <p class="descricao-aba">Quantos elementos preciso pesquisar para estimar uma porcentagem com o erro desejado?</p>
+
+    <div class="grade">
+      <form class="cartao" id="ap-formulario" novalidate>
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select id="ap-exemplo" aria-label="Carregar exemplo"></select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label for="ap-confianca">Grau de confiança</label>
+            <select id="ap-confianca">
+              <option value="90">90%</option>
+              <option value="95" selected>95%</option>
+              <option value="99">99%</option>
+            </select>
+          </div>
+          <div class="valor-z" id="ap-z"></div>
+        </div>
+        <div class="campo">
+          <label for="ap-p">Proporção p (em %)</label>
+          <input type="text" id="ap-p" inputmode="decimal" autocomplete="off">
+          <label class="caixa-marcar"><input type="checkbox" id="ap-p-desconhecido"> p desconhecido (usar 50%)</label>
+          <div class="ajuda">Quando p é desconhecido usamos 50%: é o valor mais conservador, porque p · (1 − p) atinge o máximo (0,25).</div>
+        </div>
+        <div class="campo">
+          <label for="ap-complemento">Complemento 1 − p</label>
+          <input type="text" id="ap-complemento" readonly tabindex="-1">
+          <div class="ajuda">Calculado automaticamente</div>
+        </div>
+        <div class="campo">
+          <label for="ap-erro">Erro E<sub>p</sub> (em %)</label>
+          <input type="text" id="ap-erro" inputmode="decimal" autocomplete="off">
+        </div>
+
+        <div class="erro-validacao escondido" id="ap-erro-validacao"></div>
+        <div class="botoes">
+          <button type="submit" class="botao botao-principal">Calcular</button>
+          <button type="button" class="botao botao-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmula</h2>
+        <div class="formula">
+          <i>n</i> = <span class="fracao"><span><i>z</i><sub>α/2</sub><sup>2</sup> · <i>p</i>(1 − <i>p</i>)</span><span><i>E</i><sub>p</sub><sup>2</sup></span></span>
+        </div>
+        <dl class="legenda">
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>p</dt><dd>proporção (em decimal: 30% = 0,3)</dd>
+          <dt>1 − p</dt><dd>complemento da proporção</dd>
+          <dt>E<sub>p</sub></dt><dd>erro da proporção (em decimal: 2% = 0,02)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="cartao vazio" id="ap-vazio">Preencha os dados (ou carregue um exemplo) e clique em <b>Calcular</b>.</div>
+    <div class="escondido" id="ap-resultados">
+      <div class="cartao">
+        <h2>Passo a passo</h2>
+        <ol class="passos" id="ap-passos"></ol>
+      </div>
+      <div class="cartao cartao-resposta">
+        <h2>Resposta</h2>
+        <div id="ap-resposta"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA "im" – INTERVALO DE CONFIANÇA PARA A MÉDIA
+       ========================================================= -->
+  <section class="aba" id="aba-im">
+    <h2 class="titulo-aba">Intervalo de confiança para a média</h2>
+    <p class="descricao-aba">Entre quais valores está a verdadeira média da população μ?</p>
+
+    <div class="grade">
+      <form class="cartao" id="im-formulario" novalidate>
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select id="im-exemplo" aria-label="Carregar exemplo"></select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label for="im-confianca">Grau de confiança</label>
+            <select id="im-confianca">
+              <option value="90">90%</option>
+              <option value="95" selected>95%</option>
+              <option value="99">99%</option>
+            </select>
+          </div>
+          <div class="valor-z" id="im-z"></div>
+        </div>
+        <div class="campo">
+          <label for="im-media">Média amostral (x̄)</label>
+          <input type="text" id="im-media" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="im-desvio">Desvio padrão (σ ou s)</label>
+          <input type="text" id="im-desvio" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="im-n">Tamanho da amostra (n)</label>
+          <input type="text" id="im-n" inputmode="numeric" autocomplete="off">
+        </div>
+
+        <div class="erro-validacao escondido" id="im-erro-validacao"></div>
+        <div class="botoes">
+          <button type="submit" class="botao botao-principal">Calcular</button>
+          <button type="button" class="botao botao-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmulas</h2>
+        <div class="formula">
+          <i>E</i><sub>m</sub> = <i>z</i><sub>α/2</sub> · <span class="fracao"><span><i>σ</i></span><span><span class="raiz">√<span class="raiz-conteudo"><i>n</i></span></span></span></span>
+        </div>
+        <div class="formula">
+          <i>x̄</i> − <i>E</i><sub>m</sub> &lt; <i>μ</i> &lt; <i>x̄</i> + <i>E</i><sub>m</sub>
+        </div>
+        <div class="formula">
+          <i>IC</i> = ( <i>x̄</i> − <i>E</i><sub>m</sub> ; <i>x̄</i> + <i>E</i><sub>m</sub> )
+        </div>
+        <dl class="legenda">
+          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>σ</dt><dd>desvio padrão populacional</dd>
+          <dt>s</dt><dd>desvio padrão amostral</dd>
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>x̄</dt><dd>média amostral</dd>
+          <dt>μ</dt><dd>média populacional (o que queremos estimar)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <p class="observacao">Se <b>n &gt; 30</b>, pode-se usar o desvio amostral <b>s</b> no lugar de <b>σ</b>.</p>
+
+    <div class="cartao vazio" id="im-vazio">Preencha os dados (ou carregue um exemplo) e clique em <b>Calcular</b>.</div>
+    <div class="escondido" id="im-resultados">
+      <div class="cartao">
+        <h2>Passo a passo</h2>
+        <ol class="passos" id="im-passos"></ol>
+      </div>
+      <div class="cartao cartao-resposta">
+        <h2>Resposta</h2>
+        <div id="im-resposta"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA "ip" – INTERVALO DE CONFIANÇA PARA A PROPORÇÃO
+       ========================================================= -->
+  <section class="aba" id="aba-ip">
+    <h2 class="titulo-aba">Intervalo de confiança para a proporção</h2>
+    <p class="descricao-aba">Entre quais porcentagens está a verdadeira proporção da população π?</p>
+
+    <div class="grade">
+      <form class="cartao" id="ip-formulario" novalidate>
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select id="ip-exemplo" aria-label="Carregar exemplo"></select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label for="ip-confianca">Grau de confiança</label>
+            <select id="ip-confianca">
+              <option value="90">90%</option>
+              <option value="95" selected>95%</option>
+              <option value="99">99%</option>
+            </select>
+          </div>
+          <div class="valor-z" id="ip-z"></div>
+        </div>
+        <div class="campo">
+          <label for="ip-sucessos">Número de sucessos</label>
+          <input type="text" id="ip-sucessos" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="ip-n">Tamanho da amostra (n)</label>
+          <input type="text" id="ip-n" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="ip-padrao">Padrão aceitável (%) <span class="opcional">– opcional</span></label>
+          <input type="text" id="ip-padrao" inputmode="decimal" autocomplete="off">
+          <div class="ajuda">Se preenchido, verifica se o limite superior ultrapassa o padrão.</div>
+        </div>
+
+        <div class="erro-validacao escondido" id="ip-erro-validacao"></div>
+        <div class="botoes">
+          <button type="submit" class="botao botao-principal">Calcular</button>
+          <button type="button" class="botao botao-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmulas</h2>
+        <div class="formula">
+          <i>p</i> = <span class="fracao"><span>número de sucessos</span><span><i>n</i></span></span>
+        </div>
+        <div class="formula">
+          <i>E</i><sub>p</sub> = <i>z</i><sub>α/2</sub> · <span class="raiz">√<span class="raiz-conteudo"><span class="fracao"><span><i>p</i>(1 − <i>p</i>)</span><span><i>n</i></span></span></span></span>
+        </div>
+        <div class="formula">
+          <i>IC</i> = ( <i>p</i> − <i>E</i><sub>p</sub> ; <i>p</i> + <i>E</i><sub>p</sub> )
+        </div>
+        <dl class="legenda">
+          <dt>p</dt><dd>proporção amostral</dd>
+          <dt>1 − p</dt><dd>complemento</dd>
+          <dt>E<sub>p</sub></dt><dd>erro da proporção</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>π</dt><dd>proporção populacional (o que queremos estimar)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="cartao vazio" id="ip-vazio">Preencha os dados (ou carregue um exemplo) e clique em <b>Calcular</b>.</div>
+    <div class="escondido" id="ip-resultados">
+      <div class="cartao">
+        <h2>Passo a passo</h2>
+        <ol class="passos" id="ip-passos"></ol>
+      </div>
+      <div class="cartao cartao-resposta">
+        <h2>Resposta</h2>
+        <div id="ip-resposta"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA "de" – DIMINUIR O ERRO
+       ========================================================= -->
+  <section class="aba" id="aba-de">
+    <h2 class="titulo-aba">Diminuir o erro</h2>
+    <p class="descricao-aba">Se eu quiser um erro menor, quantos elementos a mais preciso pesquisar?</p>
+
+    <div class="grade">
+      <form class="cartao" id="de-formulario" novalidate>
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select id="de-exemplo" aria-label="Carregar exemplo"></select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label for="de-confianca">Grau de confiança</label>
+            <select id="de-confianca">
+              <option value="90">90%</option>
+              <option value="95" selected>95%</option>
+              <option value="99">99%</option>
+            </select>
+          </div>
+          <div class="valor-z" id="de-z"></div>
+        </div>
+        <div class="campo">
+          <label for="de-desvio">Desvio padrão (σ ou s)</label>
+          <input type="text" id="de-desvio" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="de-n">Tamanho da amostra atual (n)</label>
+          <input type="text" id="de-n" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="de-erro-atual">Erro atual (E<sub>m</sub>)</label>
+          <input type="text" id="de-erro-atual" readonly tabindex="-1">
+          <div class="ajuda">Calculado automaticamente: E<sub>m</sub> = z<sub>α/2</sub> · σ / √n</div>
+        </div>
+        <div class="campo">
+          <label for="de-fator">Dividir o erro por (k)</label>
+          <input type="text" id="de-fator" inputmode="decimal" autocomplete="off">
+          <div class="ajuda">Ex.: 2 = erro pela metade</div>
+        </div>
+
+        <div class="erro-validacao escondido" id="de-erro-validacao"></div>
+        <div class="botoes">
+          <button type="submit" class="botao botao-principal">Calcular</button>
+          <button type="button" class="botao botao-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmulas</h2>
+        <div class="formula">
+          novo <i>E</i><sub>m</sub> = <span class="fracao"><span><i>E</i><sub>m</sub></span><span><i>k</i></span></span>
+        </div>
+        <div class="formula">
+          novo <i>n</i> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span>novo <i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+        </div>
+        <dl class="legenda">
+          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+          <dt>k</dt><dd>quantas vezes o erro vai diminuir</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>σ</dt><dd>desvio padrão (ou s, se n &gt; 30)</dd>
+          <dt>n</dt><dd>tamanho da amostra</dd>
+        </dl>
+      </div>
+    </div>
+
+    <p class="observacao"><b>Dica:</b> erro pela metade → amostra 4 vezes maior. Dividir o erro por k multiplica a amostra por k².</p>
+
+    <div class="cartao vazio" id="de-vazio">Preencha os dados (ou carregue um exemplo) e clique em <b>Calcular</b>.</div>
+    <div class="escondido" id="de-resultados">
+      <div class="cartao">
+        <h2>Passo a passo</h2>
+        <ol class="passos" id="de-passos"></ol>
+      </div>
+      <div class="cartao cartao-resposta">
+        <h2>Resposta</h2>
+        <div id="de-resposta"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =================================================================
+   PARTE COMUM – funções usadas por todas as abas
+   Cada aba tem um prefixo de 2 letras usado nos ids do HTML:
+     am = tamanho da amostra (média)     ap = tamanho da amostra (proporção)
+     im = intervalo de confiança (média) ip = intervalo de confiança (proporção)
+     de = diminuir o erro
+   ================================================================= */
+
+// ---------- 1. Valores críticos da tabela normal ----------
+const VALORES_CRITICOS = {
+  "90": { alfa: 0.10, z: 1.645 },
+  "95": { alfa: 0.05, z: 1.96 },
+  "99": { alfa: 0.01, z: 2.575 },
+};
+
+// ---------- 2. Notação da professora (pronta para usar no HTML) ----------
+const Z_ALFA = "z<sub>α/2</sub>";
+const ERRO_MEDIA = "E<sub>m</sub>";
+const ERRO_PROPORCAO = "E<sub>p</sub>";
+const MEDIA_AMOSTRAL = "x̄";
+const NOTA_ARREDONDAR_PARA_CIMA = "Sempre arredonda para cima, nunca para baixo.";
+const NOTA_SLIDES = "Os slides arredondam os valores intermediários, por isso pode haver pequena diferença.";
+
+// Monta uma fração: numerador em cima, denominador embaixo
+function fracao(numerador, denominador) {
+  return '<span class="fracao"><span>' + numerador + "</span><span>" + denominador + "</span></span>";
+}
+
+// Monta uma raiz quadrada com a barra por cima do conteúdo
+function raiz(conteudo) {
+  return '<span class="raiz">√<span class="raiz-conteudo">' + conteudo + "</span></span>";
+}
+
+// ---------- 3. Números: ler, arredondar e mostrar com vírgula ----------
+
+// Aceita "1,75" ou "1.75". Se tiver vírgula, os pontos são separador de milhar ("1.250,5").
+function converterTextoEmNumero(textoDigitado) {
+  let texto = textoDigitado.trim().replace("%", "").trim();
+  const temVirgula = texto.includes(",");
+  if (temVirgula) {
+    texto = texto.replaceAll(".", "").replace(",", ".");
+  }
+  if (texto === "") {
+    return NaN;
+  }
+  return Number(texto);
+}
+
+// Arredonda para um número de casas decimais.
+// O toFixed(6) tira a "sujeira" do computador (ex.: 1,005 guardado como 1,00499999).
+function arredondar(valor, casasDecimais) {
+  const multiplicador = Math.pow(10, casasDecimais);
+  const valorDeslocado = Number((valor * multiplicador).toFixed(6));
+  return Math.round(valorDeslocado) / multiplicador;
+}
+
+// Tamanho de amostra: sempre para cima.
+// O toFixed(6) evita que 200,0000000001 (erro do computador) vire 201.
+function arredondarParaCima(valor) {
+  const valorSemSujeira = Number(valor.toFixed(6));
+  return Math.ceil(valorSemSujeira);
+}
+
+// Mostra com vírgula e até N casas, sem zeros sobrando: 0.4 → "0,4" | 0.04029 → "0,0403"
+function formatarNumero(valor, casasMaximas = 4) {
+  const valorArredondado = arredondar(valor, casasMaximas);
+  return String(valorArredondado).replace(".", ",");
+}
+
+// Mostra sempre com N casas: 139 → "139,00"
+function formatarFixo(valor, casasDecimais) {
+  const valorArredondado = arredondar(valor, casasDecimais);
+  return valorArredondado.toFixed(casasDecimais).replace(".", ",");
+}
+
+// Decimal para porcentagem: 0.12 → "12%"
+function formatarPorcentagem(valorDecimal) {
+  return formatarNumero(valorDecimal * 100, 2) + "%";
+}
+
+// Valor exato e, se for diferente, o arredondado: 0.0403 → "0,0403 ≅ 0,04" | 0.17 → "0,17"
+function formatarComAproximacao(valor) {
+  const valorExato = arredondar(valor, 4);
+  const valorAproximado = arredondar(valor, 2);
+  if (valorExato === valorAproximado) {
+    return formatarNumero(valor, 4);
+  }
+  return formatarNumero(valor, 4) + " ≅ " + formatarFixo(valor, 2);
+}
+
+// ---------- 4. Ler campos e validar ----------
+// Quando um campo está errado, a função "lança" um ErroDeValidacao.
+// A parte comum pega esse erro e mostra a mensagem em vermelho na tela.
+
+class ErroDeValidacao extends Error {}
+
+function falharValidacao(mensagem) {
+  throw new ErroDeValidacao(mensagem);
+}
+
+function pegarCampo(idDoCampo) {
+  return document.getElementById(idDoCampo);
+}
+
+function campoEstaVazio(idDoCampo) {
+  return pegarCampo(idDoCampo).value.trim() === "";
+}
+
+function lerNumero(idDoCampo, nomeDoCampo) {
+  if (campoEstaVazio(idDoCampo)) {
+    falharValidacao('Preencha o campo "' + nomeDoCampo + '".');
+  }
+  const numero = converterTextoEmNumero(pegarCampo(idDoCampo).value);
+  if (Number.isNaN(numero)) {
+    falharValidacao('O campo "' + nomeDoCampo + '" precisa ser um número (use vírgula para decimais, ex.: 1,75).');
+  }
+  return numero;
+}
+
+function lerNumeroPositivo(idDoCampo, nomeDoCampo) {
+  const numero = lerNumero(idDoCampo, nomeDoCampo);
+  if (numero <= 0) {
+    falharValidacao('O campo "' + nomeDoCampo + '" precisa ser maior que zero.');
+  }
+  return numero;
+}
+
+function lerInteiroPositivo(idDoCampo, nomeDoCampo) {
+  const numero = lerNumeroPositivo(idDoCampo, nomeDoCampo);
+  if (!Number.isInteger(numero)) {
+    falharValidacao('O campo "' + nomeDoCampo + '" precisa ser um número inteiro (sem vírgula).');
+  }
+  return numero;
+}
+
+function lerInteiroNaoNegativo(idDoCampo, nomeDoCampo) {
+  const numero = lerNumero(idDoCampo, nomeDoCampo);
+  if (numero < 0) {
+    falharValidacao('O campo "' + nomeDoCampo + '" não pode ser negativo.');
+  }
+  if (!Number.isInteger(numero)) {
+    falharValidacao('O campo "' + nomeDoCampo + '" precisa ser um número inteiro (sem vírgula).');
+  }
+  return numero;
+}
+
+// Lê um valor digitado em % e devolve em decimal: 5 → 0.05
+function lerPorcentagemComoDecimal(idDoCampo, nomeDoCampo) {
+  const porcentagem = lerNumeroPositivo(idDoCampo, nomeDoCampo);
+  if (porcentagem >= 100) {
+    falharValidacao('O campo "' + nomeDoCampo + '" precisa estar entre 0 e 100 (digite em %, ex.: 5 para 5%).');
+  }
+  return porcentagem / 100;
+}
+
+// Devolve { porcentagem: "95", alfa: 0.05, z: 1.96 } da aba
+function lerConfianca(prefixo) {
+  const porcentagem = pegarCampo(prefixo + "-confianca").value;
+  const valorCritico = VALORES_CRITICOS[porcentagem];
+  return { porcentagem: porcentagem, alfa: valorCritico.alfa, z: valorCritico.z };
+}
+
+// Passo 1 de quase todas as abas
+function criarPassoValorCritico(confianca) {
+  return {
+    titulo: "Valor crítico",
+    conta: confianca.porcentagem + "% → α = " + formatarFixo(confianca.alfa, 2) +
+           " → " + Z_ALFA + " = " + formatarNumero(confianca.z),
+  };
+}
+
+// ---------- 5. Mostrar na tela ----------
+
+function mostrarErro(prefixo, mensagem) {
+  const caixaDeErro = pegarCampo(prefixo + "-erro-validacao");
+  caixaDeErro.textContent = mensagem;
+  caixaDeErro.classList.remove("escondido");
+  esconderResultados(prefixo);
+}
+
+function limparErro(prefixo) {
+  pegarCampo(prefixo + "-erro-validacao").classList.add("escondido");
+}
+
+function esconderResultados(prefixo) {
+  pegarCampo(prefixo + "-resultados").classList.add("escondido");
+  pegarCampo(prefixo + "-vazio").classList.remove("escondido");
+}
+
+// passos: lista de { titulo, conta }
+function mostrarPassos(prefixo, passos) {
+  const itensDaLista = passos.map(function (passo) {
+    return '<li><div><span class="titulo-passo">' + passo.titulo + "</span>" +
+           '<span class="conta">' + passo.conta + "</span></div></li>";
+  });
+  pegarCampo(prefixo + "-passos").innerHTML = itensDaLista.join("");
+}
+
+// resposta: {
+//   numeros: [ { rotulo, valor, detalhe (opcional), destaque (true/false) } ],
+//   frase:   frase final como em prova (pode ter <b>),
+//   alerta:  { tipo: "bom" ou "ruim", texto } (opcional),
+//   nota:    texto pequeno no final (opcional)
+// }
+function mostrarResposta(prefixo, resposta) {
+  const blocosDeNumeros = resposta.numeros.map(function (numero) {
+    const classeDestaque = numero.destaque ? " destaque" : "";
+    const textoDetalhe = numero.detalhe ? '<span class="detalhe">' + numero.detalhe + "</span>" : "";
+    return '<div class="numero-resposta' + classeDestaque + '">' +
+           "<small>" + numero.rotulo + "</small>" +
+           "<strong>" + numero.valor + "</strong>" + textoDetalhe + "</div>";
+  });
+
+  let html = '<div class="numeros-resposta">' + blocosDeNumeros.join("") + "</div>";
+  html += '<p class="frase-resposta">' + resposta.frase + "</p>";
+  if (resposta.alerta) {
+    html += '<div class="alerta alerta-' + resposta.alerta.tipo + '">' + resposta.alerta.texto + "</div>";
+  }
+  if (resposta.nota) {
+    html += '<p class="nota">' + resposta.nota + "</p>";
+  }
+  pegarCampo(prefixo + "-resposta").innerHTML = html;
+}
+
+// Mostra o passo a passo e a resposta, e rola a tela até eles
+function mostrarResultado(prefixo, passos, resposta) {
+  mostrarPassos(prefixo, passos);
+  mostrarResposta(prefixo, resposta);
+  pegarCampo(prefixo + "-vazio").classList.add("escondido");
+  const areaDeResultados = pegarCampo(prefixo + "-resultados");
+  areaDeResultados.classList.remove("escondido");
+  areaDeResultados.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Mostra "α = 0,05 · zα/2 = 1,96" ao lado do grau de confiança
+function atualizarValorCritico(prefixo) {
+  const confianca = lerConfianca(prefixo);
+  pegarCampo(prefixo + "-z").innerHTML =
+    "α = " + formatarFixo(confianca.alfa, 2) + " &nbsp;·&nbsp; " + Z_ALFA + " = <b>" + formatarNumero(confianca.z) + "</b>";
+}
+
+// ---------- 6. Ligar cada aba aos seus botões e exemplos ----------
+// Cada aba chama registrarAba("prefixo", { exemplos: [...], calcular: function () {...} })
+// Formato de um exemplo: { nome: "texto do menu", valores: { "id-do-campo": "valor", ... } }
+// (para caixa de marcar use true ou false)
+
+function executarCalculo(prefixo, funcaoCalcular) {
+  limparErro(prefixo);
+  try {
+    funcaoCalcular();
+  } catch (erro) {
+    const ehErroDoUsuario = erro instanceof ErroDeValidacao;
+    if (!ehErroDoUsuario) {
+      throw erro;
+    }
+    mostrarErro(prefixo, erro.message);
+  }
+}
+
+// Avisa a página que um campo mudou (para campos automáticos se atualizarem)
+function avisarQueCampoMudou(campo) {
+  campo.dispatchEvent(new Event("input", { bubbles: true }));
+  campo.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function carregarExemplo(prefixo, exemplo, funcaoCalcular) {
+  const camposDoExemplo = Object.entries(exemplo.valores);
+  camposDoExemplo.forEach(function ([idDoCampo, valor]) {
+    const campo = pegarCampo(idDoCampo);
+    if (campo.type === "checkbox") {
+      campo.checked = valor;
+    } else {
+      campo.value = valor;
+    }
+    avisarQueCampoMudou(campo);
+  });
+  atualizarValorCritico(prefixo);
+  executarCalculo(prefixo, funcaoCalcular);
+}
+
+function limparAba(prefixo) {
+  const formulario = pegarCampo(prefixo + "-formulario");
+  formulario.reset();
+  formulario.querySelectorAll("input, select").forEach(avisarQueCampoMudou);
+  pegarCampo(prefixo + "-exemplo").selectedIndex = 0;
+  limparErro(prefixo);
+  esconderResultados(prefixo);
+  atualizarValorCritico(prefixo);
+}
+
+function preencherMenuDeExemplos(prefixo, exemplos) {
+  const menu = pegarCampo(prefixo + "-exemplo");
+  menu.innerHTML = '<option value="">Carregar exemplo…</option>';
+  exemplos.forEach(function (exemplo, posicao) {
+    const opcao = document.createElement("option");
+    opcao.value = posicao;
+    opcao.textContent = exemplo.nome;
+    menu.appendChild(opcao);
+  });
+}
+
+function registrarAba(prefixo, configuracao) {
+  const formulario = pegarCampo(prefixo + "-formulario");
+  const menuDeExemplos = pegarCampo(prefixo + "-exemplo");
+  const seletorDeConfianca = pegarCampo(prefixo + "-confianca");
+  const botaoLimpar = formulario.querySelector(".botao-limpar");
+
+  preencherMenuDeExemplos(prefixo, configuracao.exemplos);
+  atualizarValorCritico(prefixo);
+
+  formulario.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    executarCalculo(prefixo, configuracao.calcular);
+  });
+
+  seletorDeConfianca.addEventListener("change", function () {
+    atualizarValorCritico(prefixo);
+  });
+
+  menuDeExemplos.addEventListener("change", function () {
+    const nenhumEscolhido = menuDeExemplos.value === "";
+    if (nenhumEscolhido) {
+      return;
+    }
+    const exemploEscolhido = configuracao.exemplos[Number(menuDeExemplos.value)];
+    carregarExemplo(prefixo, exemploEscolhido, configuracao.calcular);
+  });
+
+  botaoLimpar.addEventListener("click", function () {
+    limparAba(prefixo);
+  });
+}
+
+// ---------- 7. Troca de abas ----------
+const botoesDasAbas = document.querySelectorAll(".botao-aba");
+const todasAsAbas = document.querySelectorAll(".aba");
+
+function mostrarAba(idDaAba) {
+  todasAsAbas.forEach(function (aba) {
+    const ehAbaEscolhida = aba.id === idDaAba;
+    aba.classList.toggle("visivel", ehAbaEscolhida);
+  });
+  botoesDasAbas.forEach(function (botao) {
+    const ehBotaoEscolhido = botao.dataset.aba === idDaAba;
+    botao.classList.toggle("ativa", ehBotaoEscolhido);
+  });
+}
+
+botoesDasAbas.forEach(function (botao) {
+  botao.addEventListener("click", function () {
+    mostrarAba(botao.dataset.aba);
+  });
+});
+</script>
+
+<!-- ABAS_TAMANHO: abas "am", "ap" e "de" -->
+<script>
+/* =================================================================
+   ABAS DE TAMANHO DA AMOSTRA
+     am = tamanho da amostra para a média
+     ap = tamanho da amostra para a proporção
+     de = diminuir o erro (quanto a amostra precisa aumentar)
+
+   O arquivo tem duas partes:
+     1. MATEMÁTICA: funções puras, só fazem contas (não mexem na tela).
+     2. TELA: lê os campos, chama a matemática e monta o passo a passo.
+   Usa as funções da "PARTE COMUM" que está no index.html.
+   ================================================================= */
+
+
+/* =================================================================
+   1. MATEMÁTICA (funções puras)
+   ================================================================= */
+
+// n = (zα/2 · σ / Em)²
+function calcularTamanhoAmostraMedia(z, desvio, erro) {
+  const zVezesDesvio = z * desvio;
+  const divisaoPeloErro = zVezesDesvio / erro;
+  const tamanhoDaAmostraExato = divisaoPeloErro * divisaoPeloErro;
+  // Tamanho de amostra sempre arredonda para cima
+  const tamanhoDaAmostraArredondado = arredondarParaCima(tamanhoDaAmostraExato);
+
+  return {
+    zVezesDesvio: zVezesDesvio,
+    divisaoPeloErro: divisaoPeloErro,
+    tamanhoDaAmostraExato: tamanhoDaAmostraExato,
+    tamanhoDaAmostraArredondado: tamanhoDaAmostraArredondado,
+  };
+}
+
+// n = zα/2² · p · (1 − p) / Ep²   (p e Ep em decimal: 30% = 0,3)
+function calcularTamanhoAmostraProporcao(z, proporcao, erro) {
+  const complemento = 1 - proporcao;
+  const zAoQuadrado = z * z;
+  const proporcaoVezesComplemento = proporcao * complemento;
+  const erroAoQuadrado = erro * erro;
+  const numerador = zAoQuadrado * proporcaoVezesComplemento;
+  const tamanhoDaAmostraExato = numerador / erroAoQuadrado;
+  // Tamanho de amostra sempre arredonda para cima
+  const tamanhoDaAmostraArredondado = arredondarParaCima(tamanhoDaAmostraExato);
+
+  return {
+    complemento: complemento,
+    zAoQuadrado: zAoQuadrado,
+    proporcaoVezesComplemento: proporcaoVezesComplemento,
+    erroAoQuadrado: erroAoQuadrado,
+    numerador: numerador,
+    tamanhoDaAmostraExato: tamanhoDaAmostraExato,
+    tamanhoDaAmostraArredondado: tamanhoDaAmostraArredondado,
+  };
+}
+
+// Em = zα/2 · σ / √n
+function calcularErroDaMedia(z, desvio, tamanhoDaAmostra) {
+  const raizDoTamanho = Math.sqrt(tamanhoDaAmostra);
+  const desvioSobreRaiz = desvio / raizDoTamanho;
+  const erroDaMedia = z * desvioSobreRaiz;
+  return erroDaMedia;
+}
+
+// Dividir o erro por k: novo Em = Em / k  e  novo n = (zα/2 · σ / novo Em)²
+// Usa sempre os valores exatos (sem arredondar no meio da conta),
+// senão o novo n pode dar 201 em vez de 200.
+function calcularDiminuicaoDoErro(z, desvio, tamanhoAtual, fator) {
+  const erroAtual = calcularErroDaMedia(z, desvio, tamanhoAtual);
+  const novoErro = erroAtual / fator;
+
+  const zVezesDesvio = z * desvio;
+  const divisaoPeloNovoErro = zVezesDesvio / novoErro;
+  const novoTamanhoExato = divisaoPeloNovoErro * divisaoPeloNovoErro;
+  const novoTamanhoArredondado = arredondarParaCima(novoTamanhoExato);
+
+  const aumento = novoTamanhoArredondado - tamanhoAtual;
+  // Erro dividido por k → amostra k² vezes maior
+  const vezesMaior = fator * fator;
+
+  return {
+    erroAtual: erroAtual,
+    novoErro: novoErro,
+    zVezesDesvio: zVezesDesvio,
+    novoTamanhoExato: novoTamanhoExato,
+    novoTamanhoArredondado: novoTamanhoArredondado,
+    aumento: aumento,
+    vezesMaior: vezesMaior,
+  };
+}
+
+// Confere se o número é inteiro, ignorando a "sujeira" do computador (200,0000000001)
+function ehNumeroInteiro(valor) {
+  const valorSemSujeira = arredondar(valor, 6);
+  return Number.isInteger(valorSemSujeira);
+}
+
+
+/* =================================================================
+   2. TELA – ajudas para montar as contas
+   ================================================================= */
+
+// Parênteses grandes em volta de uma fração: ( a / b )
+function entreParenteses(conteudo) {
+  const abre = '<span class="parentese">(</span>';
+  const fecha = '<span class="parentese">)</span>';
+  return abre + conteudo + fecha;
+}
+
+// Lê um número sem mostrar erro (para os campos calculados automaticamente).
+// Devolve NaN se o campo estiver vazio ou com texto inválido.
+function lerNumeroSemAvisar(idDoCampo) {
+  const textoDigitado = pegarCampo(idDoCampo).value;
+  return converterTextoEmNumero(textoDigitado);
+}
+
+
+/* =================================================================
+   ABA "am" – TAMANHO DA AMOSTRA PARA A MÉDIA
+   ================================================================= */
+
+function calcularAbaMedia() {
+  const confianca = lerConfianca("am");
+  const desvio = lerNumeroPositivo("am-desvio", "Desvio padrão (σ)");
+  const erro = lerNumeroPositivo("am-erro", "Erro (Em)");
+
+  const resultado = calcularTamanhoAmostraMedia(confianca.z, desvio, erro);
+
+  const zTexto = formatarNumero(confianca.z);
+  const desvioTexto = formatarNumero(desvio);
+  const erroTexto = formatarNumero(erro);
+  const exatoTexto = formatarNumero(resultado.tamanhoDaAmostraExato, 4);
+  const tamanhoFinal = resultado.tamanhoDaAmostraArredondado;
+
+  const fracaoDaFormula = fracao(zTexto + " × " + desvioTexto, erroTexto);
+  const contaDaFormula = "<i>n</i> = " + entreParenteses(fracaoDaFormula) + "<sup>2</sup> = " + exatoTexto;
+
+  const passos = [
+    criarPassoValorCritico(confianca),
+    { titulo: "Aplicar a fórmula", conta: contaDaFormula },
+    { titulo: "Arredondar para cima", conta: "<i>n</i> = " + tamanhoFinal },
+  ];
+
+  const frase = "É necessária uma amostra de no mínimo <b>" + tamanhoFinal + " elementos</b>" +
+                " para estimar a média com " + confianca.porcentagem + "% de confiança" +
+                " e erro máximo de " + erroTexto + ".";
+
+  const resposta = {
+    numeros: [
+      { rotulo: "Valor exato", valor: exatoTexto },
+      { rotulo: "Tamanho da amostra", valor: "n = " + tamanhoFinal, destaque: true },
+    ],
+    frase: frase,
+    nota: NOTA_ARREDONDAR_PARA_CIMA,
+  };
+
+  mostrarResultado("am", passos, resposta);
+}
+
+registrarAba("am", {
+  exemplos: [
+    {
+      nome: "SRE/API – 95%, σ = 1250, Em = 100",
+      valores: { "am-confianca": "95", "am-desvio": "1250", "am-erro": "100" },
+    },
+    {
+      nome: "Livro – 90%, σ = 40, Em = 5",
+      valores: { "am-confianca": "90", "am-desvio": "40", "am-erro": "5" },
+    },
+  ],
+  calcular: calcularAbaMedia,
+});
+
+
+/* =================================================================
+   ABA "ap" – TAMANHO DA AMOSTRA PARA A PROPORÇÃO
+   ================================================================= */
+
+// Mostra o complemento 1 − p no campo automático: "70% (0,7)"
+function atualizarComplemento() {
+  const campoComplemento = pegarCampo("ap-complemento");
+  const proporcaoEmPorcentagem = lerNumeroSemAvisar("ap-p");
+
+  const proporcaoValida = proporcaoEmPorcentagem > 0 && proporcaoEmPorcentagem < 100;
+  if (!proporcaoValida) {
+    campoComplemento.value = "";
+    return;
+  }
+
+  const proporcao = proporcaoEmPorcentagem / 100;
+  const complemento = 1 - proporcao;
+  campoComplemento.value = formatarPorcentagem(complemento) + " (" + formatarNumero(complemento, 6) + ")";
+}
+
+// p desconhecido → usamos 50% e travamos o campo
+function aoMudarProporcaoDesconhecida() {
+  const campoProporcao = pegarCampo("ap-p");
+  const proporcaoDesconhecida = pegarCampo("ap-p-desconhecido").checked;
+
+  if (proporcaoDesconhecida) {
+    campoProporcao.value = "50";
+    campoProporcao.disabled = true;
+  } else {
+    campoProporcao.disabled = false;
+  }
+  atualizarComplemento();
+}
+
+pegarCampo("ap-p").addEventListener("input", atualizarComplemento);
+pegarCampo("ap-p").addEventListener("change", atualizarComplemento);
+pegarCampo("ap-p-desconhecido").addEventListener("change", aoMudarProporcaoDesconhecida);
+
+function calcularAbaProporcao() {
+  const confianca = lerConfianca("ap");
+  const proporcaoDesconhecida = pegarCampo("ap-p-desconhecido").checked;
+  const proporcao = lerPorcentagemComoDecimal("ap-p", "Proporção p (em %)");
+  const erro = lerPorcentagemComoDecimal("ap-erro", "Erro Ep (em %)");
+
+  const resultado = calcularTamanhoAmostraProporcao(confianca.z, proporcao, erro);
+
+  // Textos com vírgula (até 6 casas para não perder precisão nas contas pequenas)
+  const zTexto = formatarNumero(confianca.z);
+  const proporcaoTexto = formatarNumero(proporcao, 6);
+  const complementoTexto = formatarNumero(resultado.complemento, 6);
+  const erroTexto = formatarNumero(erro, 6);
+  const zAoQuadradoTexto = formatarNumero(resultado.zAoQuadrado, 6);
+  const produtoTexto = formatarNumero(resultado.proporcaoVezesComplemento, 6);
+  const erroAoQuadradoTexto = formatarNumero(resultado.erroAoQuadrado, 6);
+  const exatoTexto = formatarNumero(resultado.tamanhoDaAmostraExato, 4);
+  const tamanhoFinal = resultado.tamanhoDaAmostraArredondado;
+
+  // Passo "Dados"
+  const separador = " &nbsp;|&nbsp; ";
+  let contaDosDados = "<i>p</i> = " + formatarPorcentagem(proporcao) + " = " + proporcaoTexto +
+                      " ⟹ (1 − <i>p</i>) = " + complementoTexto +
+                      separador +
+                      ERRO_PROPORCAO + " = " + formatarPorcentagem(erro) + " = " + erroTexto;
+  if (proporcaoDesconhecida) {
+    contaDosDados += " &nbsp;(p desconhecido → usamos 50%)";
+  }
+
+  // Passo "Aplicar a fórmula": substitui, faz as potências e divide
+  const fracaoSubstituida = fracao(
+    zTexto + "<sup>2</sup> × " + proporcaoTexto + " × " + complementoTexto,
+    erroTexto + "<sup>2</sup>"
+  );
+  const fracaoCalculada = fracao(zAoQuadradoTexto + " × " + produtoTexto, erroAoQuadradoTexto);
+  const contaDaFormula = "<i>n</i> = " + fracaoSubstituida + " = " + fracaoCalculada + " = " + exatoTexto;
+
+  const passos = [
+    criarPassoValorCritico(confianca),
+    { titulo: "Dados", conta: contaDosDados },
+    { titulo: "Aplicar a fórmula", conta: contaDaFormula },
+    { titulo: "Arredondar para cima", conta: "<i>n</i> = " + tamanhoFinal },
+  ];
+
+  let frase = "É necessária uma amostra de no mínimo <b>" + tamanhoFinal + " elementos</b>" +
+              " para estimar a proporção com " + confianca.porcentagem + "% de confiança" +
+              " e erro máximo de " + formatarPorcentagem(erro);
+  if (proporcaoDesconhecida) {
+    frase += " (usando p = 50%, o valor mais conservador)";
+  }
+  frase += ".";
+
+  const resposta = {
+    numeros: [
+      { rotulo: "Valor exato", valor: exatoTexto },
+      { rotulo: "Tamanho da amostra", valor: "n = " + tamanhoFinal, destaque: true },
+    ],
+    frase: frase,
+    nota: NOTA_ARREDONDAR_PARA_CIMA,
+  };
+
+  mostrarResultado("ap", passos, resposta);
+}
+
+// Nos exemplos, a caixa "p desconhecido" vem por último:
+// assim ela é aplicada depois do p e decide se o campo fica travado em 50%.
+registrarAba("ap", {
+  exemplos: [
+    {
+      nome: "Eleitoral – 95%, p = 30%, Ep = 2%",
+      valores: { "ap-confianca": "95", "ap-p": "30", "ap-erro": "2", "ap-p-desconhecido": false },
+    },
+    {
+      nome: "QA falhas – 95%, p = 15%, Ep = 3%",
+      valores: { "ap-confianca": "95", "ap-p": "15", "ap-erro": "3", "ap-p-desconhecido": false },
+    },
+    {
+      nome: "QA falhas com p desconhecido – 95%, Ep = 3%",
+      valores: { "ap-confianca": "95", "ap-erro": "3", "ap-p-desconhecido": true },
+    },
+    {
+      nome: "Sabonete – 95%, p desconhecido, Ep = 4%",
+      valores: { "ap-confianca": "95", "ap-erro": "4", "ap-p-desconhecido": true },
+    },
+    {
+      nome: "Consultório – 95%, p = 65%, Ep = 5%",
+      valores: { "ap-confianca": "95", "ap-p": "65", "ap-erro": "5", "ap-p-desconhecido": false },
+    },
+    {
+      nome: "TV a cabo – 95%, p desconhecido, Ep = 8%",
+      valores: { "ap-confianca": "95", "ap-erro": "8", "ap-p-desconhecido": true },
+    },
+  ],
+  calcular: calcularAbaProporcao,
+});
+
+
+/* =================================================================
+   ABA "de" – DIMINUIR O ERRO
+   ================================================================= */
+
+// Mostra o erro atual (Em = zα/2 · σ / √n) no campo automático
+function atualizarErroAtual() {
+  const campoErroAtual = pegarCampo("de-erro-atual");
+  const confianca = lerConfianca("de");
+  const desvio = lerNumeroSemAvisar("de-desvio");
+  const tamanhoAtual = lerNumeroSemAvisar("de-n");
+
+  const desvioValido = desvio > 0;
+  const tamanhoValido = Number.isInteger(tamanhoAtual) && tamanhoAtual > 0;
+  if (!desvioValido || !tamanhoValido) {
+    campoErroAtual.value = "";
+    return;
+  }
+
+  const erroAtual = calcularErroDaMedia(confianca.z, desvio, tamanhoAtual);
+  campoErroAtual.value = formatarNumero(erroAtual, 4);
+}
+
+pegarCampo("de-confianca").addEventListener("change", atualizarErroAtual);
+pegarCampo("de-desvio").addEventListener("input", atualizarErroAtual);
+pegarCampo("de-desvio").addEventListener("change", atualizarErroAtual);
+pegarCampo("de-n").addEventListener("input", atualizarErroAtual);
+pegarCampo("de-n").addEventListener("change", atualizarErroAtual);
+
+function calcularAbaDiminuirErro() {
+  const confianca = lerConfianca("de");
+  const desvio = lerNumeroPositivo("de-desvio", "Desvio padrão (σ ou s)");
+  const tamanhoAtual = lerInteiroPositivo("de-n", "Tamanho da amostra atual (n)");
+  const fator = lerNumeroPositivo("de-fator", "Dividir o erro por (k)");
+  if (fator <= 1) {
+    falharValidacao("Para diminuir o erro, k precisa ser maior que 1 (ex.: 2 = erro pela metade).");
+  }
+
+  const resultado = calcularDiminuicaoDoErro(confianca.z, desvio, tamanhoAtual, fator);
+
+  const zTexto = formatarNumero(confianca.z);
+  const desvioTexto = formatarNumero(desvio);
+  const fatorTexto = formatarNumero(fator);
+  const erroAtualTexto = formatarNumero(resultado.erroAtual, 4);
+  const novoErroTexto = formatarNumero(resultado.novoErro, 4);
+  const novoTamanhoExatoTexto = formatarNumero(resultado.novoTamanhoExato, 4);
+  const vezesMaiorTexto = formatarNumero(resultado.vezesMaior);
+  const novoTamanho = resultado.novoTamanhoArredondado;
+
+  // Passo "Erro atual"
+  const contaErroAtual = ERRO_MEDIA + " = " + zTexto + " · " +
+                         fracao(desvioTexto, raiz(String(tamanhoAtual))) + " = " + erroAtualTexto;
+
+  // Passo "Novo erro"
+  const contaNovoErro = "novo " + ERRO_MEDIA + " = " + fracao(erroAtualTexto, fatorTexto) + " = " + novoErroTexto;
+
+  // Passo "Novo tamanho da amostra"
+  const fracaoDoNovoTamanho = fracao(zTexto + " × " + desvioTexto, novoErroTexto);
+  let contaNovoTamanho = "<i>n</i> = " + entreParenteses(fracaoDoNovoTamanho) + "<sup>2</sup> = " + novoTamanhoExatoTexto;
+  const precisaArredondar = !ehNumeroInteiro(resultado.novoTamanhoExato);
+  if (precisaArredondar) {
+    contaNovoTamanho += " → arredonda para cima: " + novoTamanho;
+  }
+
+  // Passo "Quanto aumentar"
+  const contaAumento = novoTamanho + " − " + tamanhoAtual + " = " + resultado.aumento +
+                       " elementos a mais (" + vezesMaiorTexto + " vezes a amostra atual)";
+
+  const passos = [
+    criarPassoValorCritico(confianca),
+    { titulo: "Erro atual", conta: contaErroAtual },
+    { titulo: "Novo erro", conta: contaNovoErro },
+    { titulo: "Novo tamanho da amostra", conta: contaNovoTamanho },
+    { titulo: "Quanto aumentar", conta: contaAumento },
+  ];
+
+  const frase = "Para dividir o erro por " + fatorTexto +
+                " (de " + formatarFixo(resultado.erroAtual, 2) + " para " + formatarFixo(resultado.novoErro, 2) + ")," +
+                " a amostra precisa passar de " + tamanhoAtual + " para <b>" + novoTamanho + " elementos</b>," +
+                " ou seja, <b>" + resultado.aumento + " a mais</b>.";
+
+  const resposta = {
+    numeros: [
+      { rotulo: "Novo erro", valor: formatarFixo(resultado.novoErro, 2), detalhe: "exato: " + novoErroTexto },
+      { rotulo: "Novo tamanho da amostra", valor: "n = " + novoTamanho, destaque: true },
+      { rotulo: "Aumento", valor: "+" + resultado.aumento, detalhe: vezesMaiorTexto + " vezes a amostra atual" },
+    ],
+    frase: frase,
+    nota: "Erro dividido por k → amostra k² vezes maior. " + NOTA_ARREDONDAR_PARA_CIMA,
+  };
+
+  mostrarResultado("de", passos, resposta);
+}
+
+registrarAba("de", {
+  exemplos: [
+    {
+      nome: "Provedor internet – 95%, s = 6,5, n = 50, erro ÷ 2",
+      valores: { "de-confianca": "95", "de-desvio": "6,5", "de-n": "50", "de-fator": "2" },
+    },
+  ],
+  calcular: calcularAbaDiminuirErro,
+});
+</script>
+
+<!-- ABAS_INTERVALO: abas "im" e "ip" -->
+<script>
+/* =================================================================
+   ABAS DE INTERVALO DE CONFIANÇA
+     im = intervalo de confiança para a média
+     ip = intervalo de confiança para a proporção
+
+   Organização do arquivo:
+     1. Matemática (funções puras: só recebem números e devolvem números)
+     2. Aba "im": lê os campos, monta o passo a passo e a resposta
+     3. Aba "ip": lê os campos, monta o passo a passo e a resposta
+   As funções da PARTE COMUM (lerNumero, formatarNumero, fracao, raiz,
+   mostrarResultado, registrarAba...) estão no index.html.
+   ================================================================= */
+
+
+/* -----------------------------------------------------------------
+   1. MATEMÁTICA
+   Todas as contas usam os valores EXATOS (sem arredondar no meio).
+   O arredondamento só acontece na hora de mostrar na tela.
+   ----------------------------------------------------------------- */
+
+// Intervalo de confiança para a média:
+//   Em = zα/2 · σ / √n
+//   IC = (x̄ − Em ; x̄ + Em)
+function calcularIntervaloMedia(z, media, desvio, tamanhoDaAmostra) {
+  const raizDeN = Math.sqrt(tamanhoDaAmostra);
+  const erroDaMedia = z * desvio / raizDeN;
+  const limiteInferior = media - erroDaMedia;
+  const limiteSuperior = media + erroDaMedia;
+  const amplitude = limiteSuperior - limiteInferior;
+
+  return {
+    erroDaMedia: erroDaMedia,
+    limiteInferior: limiteInferior,
+    limiteSuperior: limiteSuperior,
+    amplitude: amplitude,
+  };
+}
+
+// Intervalo de confiança para a proporção:
+//   p  = sucessos / n
+//   Ep = zα/2 · √( p(1 − p) / n )
+//   IC = (p − Ep ; p + Ep)
+function calcularIntervaloProporcao(z, sucessos, tamanhoDaAmostra) {
+  const proporcao = sucessos / tamanhoDaAmostra;
+  const complemento = 1 - proporcao;
+  const variacaoDaProporcao = proporcao * complemento / tamanhoDaAmostra;
+  const erroDaProporcao = z * Math.sqrt(variacaoDaProporcao);
+  const limiteInferior = proporcao - erroDaProporcao;
+  const limiteSuperior = proporcao + erroDaProporcao;
+
+  return {
+    proporcao: proporcao,
+    complemento: complemento,
+    erroDaProporcao: erroDaProporcao,
+    limiteInferior: limiteInferior,
+    limiteSuperior: limiteSuperior,
+  };
+}
+
+// A qualidade está garantida quando o limite superior fica ABAIXO do padrão.
+// Como a professora faz, comparamos o limite superior já arredondado em 2 casas
+// (ex.: 0,2221 vira 0,22 = 22%, que é maior que o padrão de 20%).
+function qualidadeEstaGarantida(limiteSuperior, padraoDecimal) {
+  const limiteSuperiorArredondado = arredondar(limiteSuperior, 2);
+  return limiteSuperiorArredondado < padraoDecimal;
+}
+
+
+/* -----------------------------------------------------------------
+   Ajudantes de texto usados pelas duas abas
+   ----------------------------------------------------------------- */
+
+// Escreve um intervalo no formato dos slides: "(1,71 ; 1,79)"
+function escreverIntervalo(textoInferior, textoSuperior) {
+  return "(" + textoInferior + " ; " + textoSuperior + ")";
+}
+
+
+/* -----------------------------------------------------------------
+   2. ABA "im" – INTERVALO DE CONFIANÇA PARA A MÉDIA
+   ----------------------------------------------------------------- */
+
+const LIMITE_AMOSTRA_PEQUENA = 30;
+const AVISO_AMOSTRA_PEQUENA = "Atenção: n ≤ 30, o ideal é usar o desvio padrão populacional σ.";
+
+function calcularAbaIntervaloMedia() {
+  // Ler os dados digitados (cada função já valida e mostra erro amigável)
+  const confianca = lerConfianca("im");
+  const media = lerNumero("im-media", "Média amostral (x̄)");
+  const desvio = lerNumeroPositivo("im-desvio", "Desvio padrão (σ ou s)");
+  const tamanhoDaAmostra = lerInteiroPositivo("im-n", "Tamanho da amostra (n)");
+
+  // Fazer as contas com os valores exatos
+  const intervalo = calcularIntervaloMedia(confianca.z, media, desvio, tamanhoDaAmostra);
+
+  // Textos que aparecem várias vezes
+  const textoMedia = formatarNumero(media);
+  const textoErroExato = formatarNumero(intervalo.erroDaMedia);
+  const textoErroArredondado = formatarFixo(intervalo.erroDaMedia, 2);
+  const textoInferiorExato = formatarNumero(intervalo.limiteInferior);
+  const textoSuperiorExato = formatarNumero(intervalo.limiteSuperior);
+  // Os limites arredondados vêm do limite EXATO (não do erro já arredondado)
+  const textoInferiorArredondado = formatarFixo(intervalo.limiteInferior, 2);
+  const textoSuperiorArredondado = formatarFixo(intervalo.limiteSuperior, 2);
+  const intervaloExato = escreverIntervalo(textoInferiorExato, textoSuperiorExato);
+  const intervaloArredondado = escreverIntervalo(textoInferiorArredondado, textoSuperiorArredondado);
+
+  // Passo 2: margem de erro
+  const formulaDoErro = Z_ALFA + " · " + fracao("σ", raiz("n"));
+  const contaDoErro = formatarNumero(confianca.z) + " · " +
+                      fracao(formatarNumero(desvio), raiz(String(tamanhoDaAmostra)));
+  const passoMargemDeErro = {
+    titulo: "Margem de erro",
+    conta: ERRO_MEDIA + " = " + formulaDoErro + " = " + contaDoErro +
+           " = " + formatarComAproximacao(intervalo.erroDaMedia),
+  };
+
+  // Passo 3: intervalo
+  const intervaloComContas = escreverIntervalo(
+    textoMedia + " − " + textoErroExato,
+    textoMedia + " + " + textoErroExato
+  );
+  const passoIntervalo = {
+    titulo: "Intervalo",
+    conta: "IC = " + intervaloComContas + " = " + intervaloExato + " ≅ " + intervaloArredondado,
+  };
+
+  // Passo 4: amplitude (distância entre os dois limites)
+  const passoAmplitude = {
+    titulo: "Amplitude",
+    conta: textoSuperiorExato + " − " + textoInferiorExato +
+           " = " + formatarComAproximacao(intervalo.amplitude),
+  };
+
+  const passos = [
+    criarPassoValorCritico(confianca),
+    passoMargemDeErro,
+    passoIntervalo,
+    passoAmplitude,
+  ];
+
+  // Nota final: com amostra pequena, avisamos antes da nota dos slides
+  let nota = NOTA_SLIDES;
+  const amostraPequena = tamanhoDaAmostra <= LIMITE_AMOSTRA_PEQUENA;
+  if (amostraPequena) {
+    nota = AVISO_AMOSTRA_PEQUENA + "<br>" + NOTA_SLIDES;
+  }
+
+  const frase = "Podemos afirmar com " + confianca.porcentagem + "% de confiança que o intervalo de <b>" +
+                textoInferiorArredondado + " a " + textoSuperiorArredondado +
+                "</b> contém a verdadeira média populacional μ.";
+
+  const resposta = {
+    numeros: [
+      { rotulo: "Erro " + ERRO_MEDIA, valor: textoErroArredondado, detalhe: "exato: " + textoErroExato },
+      { rotulo: "Intervalo de confiança", valor: intervaloArredondado, detalhe: "exato: " + intervaloExato, destaque: true },
+      { rotulo: "Amplitude", valor: formatarFixo(intervalo.amplitude, 2), detalhe: "exato: " + formatarNumero(intervalo.amplitude) },
+    ],
+    frase: frase,
+    nota: nota,
+  };
+
+  mostrarResultado("im", passos, resposta);
+}
+
+const EXEMPLOS_INTERVALO_MEDIA = [
+  {
+    nome: "Altura estudantes – 95%, x̄ = 1,75, s = 0,13, n = 40",
+    valores: { "im-confianca": "95", "im-media": "1,75", "im-desvio": "0,13", "im-n": "40" },
+  },
+  {
+    nome: "Provedor internet – 95%, x̄ = 140,8, s = 6,5, n = 50",
+    valores: { "im-confianca": "95", "im-media": "140,8", "im-desvio": "6,5", "im-n": "50" },
+  },
+  {
+    nome: "Servidor web – 95%, x̄ = 320, s = 45, n = 50",
+    valores: { "im-confianca": "95", "im-media": "320", "im-desvio": "45", "im-n": "50" },
+  },
+  {
+    nome: "Memória RAM – 99%, x̄ = 2,8, s = 0,4, n = 36",
+    valores: { "im-confianca": "99", "im-media": "2,8", "im-desvio": "0,4", "im-n": "36" },
+  },
+  {
+    nome: "Sessões e-learning – 90%, x̄ = 18,5, s = 4,2, n = 60",
+    valores: { "im-confianca": "90", "im-media": "18,5", "im-desvio": "4,2", "im-n": "60" },
+  },
+];
+
+registrarAba("im", {
+  exemplos: EXEMPLOS_INTERVALO_MEDIA,
+  calcular: calcularAbaIntervaloMedia,
+});
+
+
+/* -----------------------------------------------------------------
+   3. ABA "ip" – INTERVALO DE CONFIANÇA PARA A PROPORÇÃO
+   ----------------------------------------------------------------- */
+
+function calcularAbaIntervaloProporcao() {
+  // Ler os dados digitados
+  const confianca = lerConfianca("ip");
+  const sucessos = lerInteiroNaoNegativo("ip-sucessos", "Número de sucessos");
+  const tamanhoDaAmostra = lerInteiroPositivo("ip-n", "Tamanho da amostra (n)");
+
+  // Não existe ter mais sucessos do que pessoas pesquisadas
+  if (sucessos > tamanhoDaAmostra) {
+    falharValidacao("O número de sucessos (" + sucessos + ") não pode ser maior que o tamanho da amostra (n = " +
+                    tamanhoDaAmostra + ").");
+  }
+
+  // O padrão aceitável é opcional
+  const temPadrao = !campoEstaVazio("ip-padrao");
+  let padraoDecimal = 0;
+  if (temPadrao) {
+    padraoDecimal = lerPorcentagemComoDecimal("ip-padrao", "Padrão aceitável (%)");
+  }
+
+  // Fazer as contas com os valores exatos
+  const intervalo = calcularIntervaloProporcao(confianca.z, sucessos, tamanhoDaAmostra);
+
+  // Textos que aparecem várias vezes
+  const textoProporcao = formatarNumero(intervalo.proporcao);
+  const textoComplemento = formatarNumero(intervalo.complemento);
+  const textoErroExato = formatarNumero(intervalo.erroDaProporcao);
+  const textoErroArredondado = formatarFixo(intervalo.erroDaProporcao, 2);
+  const textoInferiorExato = formatarNumero(intervalo.limiteInferior);
+  const textoSuperiorExato = formatarNumero(intervalo.limiteSuperior);
+  const textoInferiorArredondado = formatarFixo(intervalo.limiteInferior, 2);
+  const textoSuperiorArredondado = formatarFixo(intervalo.limiteSuperior, 2);
+  const intervaloExato = escreverIntervalo(textoInferiorExato, textoSuperiorExato);
+  const intervaloArredondado = escreverIntervalo(textoInferiorArredondado, textoSuperiorArredondado);
+
+  // A porcentagem é feita a partir do valor arredondado em 2 casas (0,22 → 22%)
+  const limiteInferiorArredondado = arredondar(intervalo.limiteInferior, 2);
+  const limiteSuperiorArredondado = arredondar(intervalo.limiteSuperior, 2);
+  const textoInferiorPorcentagem = formatarPorcentagem(limiteInferiorArredondado);
+  const textoSuperiorPorcentagem = formatarPorcentagem(limiteSuperiorArredondado);
+  const intervaloEmPorcentagem = escreverIntervalo(textoInferiorPorcentagem, textoSuperiorPorcentagem);
+
+  // Passo 1: proporção amostral e complemento
+  const passoProporcao = {
+    titulo: "Proporção amostral",
+    conta: "p = " + fracao(String(sucessos), String(tamanhoDaAmostra)) +
+           " = " + formatarComAproximacao(intervalo.proporcao) +
+           " ⟹ (1 − p) = " + formatarComAproximacao(intervalo.complemento),
+  };
+
+  // Passo 3: margem de erro
+  const formulaDoErro = Z_ALFA + " · " + raiz(fracao("p(1 − p)", "n"));
+  const contaDoErro = formatarNumero(confianca.z) + " · " +
+                      raiz(fracao(textoProporcao + " · " + textoComplemento, String(tamanhoDaAmostra)));
+  const passoMargemDeErro = {
+    titulo: "Margem de erro",
+    conta: ERRO_PROPORCAO + " = " + formulaDoErro + " = " + contaDoErro +
+           " = " + formatarComAproximacao(intervalo.erroDaProporcao),
+  };
+
+  // Passo 4: intervalo (em decimal e em porcentagem)
+  const intervaloComContas = escreverIntervalo(
+    textoProporcao + " − " + textoErroExato,
+    textoProporcao + " + " + textoErroExato
+  );
+  const passoIntervalo = {
+    titulo: "Intervalo",
+    conta: "IC = " + intervaloComContas + " = " + intervaloExato +
+           " ≅ " + intervaloArredondado + " = " + intervaloEmPorcentagem,
+  };
+
+  const passos = [
+    passoProporcao,
+    criarPassoValorCritico(confianca),
+    passoMargemDeErro,
+    passoIntervalo,
+  ];
+
+  const frase = "Podemos afirmar com " + confianca.porcentagem + "% de confiança que o intervalo de <b>" +
+                textoInferiorPorcentagem + " a " + textoSuperiorPorcentagem +
+                "</b> contém a verdadeira proporção populacional π.";
+
+  const resposta = {
+    numeros: [
+      { rotulo: "p", valor: formatarFixo(intervalo.proporcao, 2) },
+      { rotulo: "Erro " + ERRO_PROPORCAO, valor: textoErroArredondado, detalhe: "exato: " + textoErroExato },
+      {
+        rotulo: "Intervalo de confiança",
+        valor: intervaloEmPorcentagem,
+        detalhe: "decimal: " + intervaloArredondado + " · exato: " + intervaloExato,
+        destaque: true,
+      },
+    ],
+    frase: frase,
+    nota: NOTA_SLIDES,
+  };
+
+  // Passo 5 e alerta: só quando o padrão aceitável foi preenchido
+  if (temPadrao) {
+    const textoPadrao = formatarPorcentagem(padraoDecimal);
+    const garantida = qualidadeEstaGarantida(intervalo.limiteSuperior, padraoDecimal);
+
+    if (garantida) {
+      passos.push({
+        titulo: "Comparar com o padrão",
+        conta: "limite superior " + textoSuperiorPorcentagem + " &lt; padrão " + textoPadrao +
+               " → qualidade garantida",
+      });
+      resposta.alerta = {
+        tipo: "bom",
+        texto: "O limite superior (" + textoSuperiorPorcentagem + ") está abaixo do padrão aceitável de " +
+               textoPadrao + " → a qualidade está garantida.",
+      };
+    } else {
+      passos.push({
+        titulo: "Comparar com o padrão",
+        conta: "limite superior " + textoSuperiorPorcentagem + " ≥ padrão " + textoPadrao +
+               " → qualidade NÃO garantida",
+      });
+      resposta.alerta = {
+        tipo: "ruim",
+        texto: "O limite superior (" + textoSuperiorPorcentagem + ") ultrapassa o padrão aceitável de " +
+               textoPadrao + " → a qualidade NÃO está garantida.",
+      };
+    }
+  }
+
+  mostrarResultado("ip", passos, resposta);
+}
+
+// Nos exemplos sem padrão, "ip-padrao": "" limpa o campo
+const EXEMPLOS_INTERVALO_PROPORCAO = [
+  {
+    nome: "Eleitoral – 95%, 860 de 2200",
+    valores: { "ip-confianca": "95", "ip-sucessos": "860", "ip-n": "2200", "ip-padrao": "" },
+  },
+  {
+    nome: "Barbeador – 90%, 40 de 100",
+    valores: { "ip-confianca": "90", "ip-sucessos": "40", "ip-n": "100", "ip-padrao": "" },
+  },
+  {
+    nome: "Etiquetas boas – 95%, 465 de 500",
+    valores: { "ip-confianca": "95", "ip-sucessos": "465", "ip-n": "500", "ip-padrao": "" },
+  },
+  {
+    nome: "Desemprego – 95%, 89 de 1000",
+    valores: { "ip-confianca": "95", "ip-sucessos": "89", "ip-n": "1000", "ip-padrao": "" },
+  },
+  {
+    nome: "Bugs – 95%, 34 de 200, padrão 20%",
+    valores: { "ip-confianca": "95", "ip-sucessos": "34", "ip-n": "200", "ip-padrao": "20" },
+  },
+  {
+    nome: "2FA – 99%, 315 de 500",
+    valores: { "ip-confianca": "99", "ip-sucessos": "315", "ip-n": "500", "ip-padrao": "" },
+  },
+  {
+    nome: "App mobile – 95%, 560 de 800",
+    valores: { "ip-confianca": "95", "ip-sucessos": "560", "ip-n": "800", "ip-padrao": "" },
+  },
+];
+
+registrarAba("ip", {
+  exemplos: EXEMPLOS_INTERVALO_PROPORCAO,
+  calcular: calcularAbaIntervaloProporcao,
+});
+</script>
+
+</body>
+</html>
