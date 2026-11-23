@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estatística Aplicada – Protótipo</title>
+<style>
+  /* ---------- Cores e medidas usadas em toda a página ---------- */
+  :root {
+    --verde: #1d7a4c;
+    --verde-escuro: #145c38;
+    --verde-claro: #eaf4ee;
+    --preto: #141414;
+    --cinza: #5f6360;
+    --cinza-claro: #f4f5f4;
+    --borda: #dfe2e0;
+    --branco: #ffffff;
+    --raio: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--cinza-claro);
+    color: var(--preto);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Cabeçalho ---------- */
+  .cabecalho {
+    background: var(--preto);
+    color: var(--branco);
+    padding: 22px 16px;
+  }
+  .cabecalho-conteudo {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cabecalho h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .cabecalho h1 span { color: #6fcf97; }
+  .cabecalho p {
+    margin: 2px 0 0;
+    color: #b9bdba;
+    font-size: 0.95rem;
+  }
+  .selo-prototipo {
+    border: 1px solid #6fcf97;
+    color: #6fcf97;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+  }
+
+  /* ---------- Abas ---------- */
+  .abas {
+    background: var(--branco);
+    border-bottom: 1px solid var(--borda);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .abas-conteudo {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    overflow-x: auto;
+    padding: 0 8px;
+  }
+  .botao-aba {
+    flex: 1 0 auto;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 14px 16px 11px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--cinza);
+    font: inherit;
+  }
+  .botao-aba small {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .botao-aba strong {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .botao-aba:hover { color: var(--preto); }
+  .botao-aba.ativa {
+    color: var(--preto);
+    border-bottom-color: var(--verde);
+  }
+
+  /* ---------- Área principal ---------- */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+  .aba { display: none; }
+  .aba.visivel { display: block; }
+
+  .titulo-aba {
+    margin: 0 0 4px;
+    font-size: 1.6rem;
+  }
+  .descricao-aba {
+    margin: 0 0 20px;
+    color: var(--cinza);
+  }
+
+  .grade {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .cartao {
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+  .grade .cartao { margin-bottom: 0; }
+
+  .cartao h2 {
+    margin: 0 0 16px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--verde);
+  }
+
+  /* ---------- Formulário ---------- */
+  .campo { margin-bottom: 14px; }
+  .campo label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+  .campo input[type="text"],
+  .campo select {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--branco);
+    color: var(--preto);
+  }
+  .campo input:focus,
+  .campo select:focus {
+    outline: 2px solid var(--verde);
+    outline-offset: -1px;
+  }
+  .campo input[readonly] {
+    background: var(--cinza-claro);
+    color: var(--cinza);
+  }
+  .ajuda {
+    font-size: 0.85rem;
+    color: var(--cinza);
+    margin-top: 4px;
+  }
+
+  .linha-confianca {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .valor-z {
+    background: var(--verde-claro);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .valor-z b { color: var(--verde-escuro); }
+
+  .caixa-marcar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    margin-top: 6px;
+    cursor: pointer;
+  }
+  .caixa-marcar input { width: 18px; height: 18px; accent-color: var(--verde); }
+
+  .exemplo {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed var(--borda);
+  }
+  .exemplo select {
+    flex: 1;
+    padding: 9px 10px;
+    font: inherit;
+    font-size: 0.9rem;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+  }
+
+  .botoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .botao {
+    font: inherit;
+    font-weight: 600;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--preto);
+    background: var(--branco);
+    color: var(--preto);
+  }
+  .botao-principal {
+    background: var(--verde);
+    border-color: var(--verde);
+    color: var(--branco);
+  }
+  .botao-principal:hover { background: var(--verde-escuro); }
+  .botao:not(.botao-principal):hover { background: var(--cinza-claro); }
+
+  /* ---------- Fórmula ---------- */
+  .cartao-formula { background: var(--verde-claro); border-color: #cfe5d8; }
+  .formula {
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    font-size: 1.7rem;
+    text-align: center;
+    padding: 18px 8px;
+    background: var(--branco);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .formula + .formula { margin-top: -2px; }
+  .formula i { font-style: italic; }
+
+  /* fração: numerador em cima, denominador embaixo */
+  .fracao {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    margin: 0 4px;
+  }
+  .fracao > span { padding: 0 4px; }
+  .fracao > span:first-child { border-bottom: 1.5px solid var(--preto); }
+
+  /* raiz quadrada com a barra por cima */
+  .raiz { white-space: nowrap; }
+  .raiz-conteudo {
+    display: inline-block;
+    border-top: 1.5px solid var(--preto);
+    padding: 2px 3px 0;
+  }
+  .parentese { font-size: 2.6rem; vertical-align: middle; font-weight: 300; }
+
+  .legenda {
+    margin: 14px 0 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    font-size: 0.95rem;
+  }
+  .legenda dt {
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--verde-escuro);
+  }
+  .legenda dd { margin: 0; }
+
+  /* ---------- Passo a passo ---------- */
+  .passos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: passo;
+  }
+  .passos li {
+    counter-increment: passo;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--cinza-claro);
+  }
+  .passos li:last-child { border-bottom: none; }
+  .passos li::before {
+    content: counter(passo);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--preto);
+    color: var(--branco);
+    font-size: 0.85rem;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+  }
+  .passos .conta {
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    font-size: 1.15rem;
+  }
+  .passos .explica {
+    display: block;
+    color: var(--cinza);
+    font-size: 0.88rem;
+  }
+
+  /* ---------- Resposta final ---------- */
+  .cartao-resposta {
+    background: var(--preto);
+    color: var(--branco);
+    border-color: var(--preto);
+  }
+  .cartao-resposta h2 { color: #6fcf97; }
+  .numeros-resposta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .numero-resposta small {
+    display: block;
+    color: #b9bdba;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .numero-resposta strong {
+    font-size: 2.2rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .numero-resposta.destaque strong { color: #6fcf97; }
+  .numero-resposta .exato {
+    display: block;
+    font-size: 0.85rem;
+    color: #b9bdba;
+  }
+  .frase-resposta {
+    font-size: 1.2rem;
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid #333;
+  }
+  .nota {
+    margin: 14px 0 0;
+    font-size: 0.85rem;
+    color: #b9bdba;
+  }
+  .alerta {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .alerta-ruim { background: #3a1616; color: #ff9a9a; border: 1px solid #6b2a2a; }
+
+  /* ---------- Observação (caixa cinza) ---------- */
+  .observacao {
+    border-left: 4px solid var(--verde);
+    background: var(--branco);
+    padding: 10px 14px;
+    margin: 0 0 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Comparar níveis ---------- */
+  .comparacao {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .nivel {
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .nivel.atual { border-color: var(--verde); border-width: 2px; }
+  .nivel .rotulo {
+    font-size: 0.85rem;
+    color: var(--cinza);
+  }
+  .nivel .valor {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 2px 0 8px;
+  }
+  .barra {
+    height: 10px;
+    background: var(--cinza-claro);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .barra span {
+    display: block;
+    height: 100%;
+    background: var(--verde);
+  }
+  .frase-comparacao {
+    margin: 14px 0 0;
+    font-weight: 600;
+  }
+  .rotulo-prototipo {
+    font-size: 0.8rem;
+    color: var(--cinza);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* ---------- Celular ---------- */
+  @media (max-width: 760px) {
+    body { font-size: 16px; }
+    .grade { grid-template-columns: 1fr; }
+    .comparacao { grid-template-columns: 1fr; }
+    .formula { font-size: 1.35rem; }
+    .numero-resposta strong { font-size: 1.8rem; }
+    .linha-confianca { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <div>
+      <h1>Estatística <span>Aplicada</span></h1>
+      <p>Tamanho da amostra e intervalo de confiança</p>
+    </div>
+    <span class="selo-prototipo">Protótipo · valores fixos</span>
+  </div>
+</header>
+
+<nav class="abas">
+  <div class="abas-conteudo">
+    <button class="botao-aba ativa" data-aba="aba-1"><small>Tamanho da amostra</small><strong>Média</strong></button>
+    <button class="botao-aba" data-aba="aba-2"><small>Tamanho da amostra</small><strong>Proporção</strong></button>
+    <button class="botao-aba" data-aba="aba-3"><small>Intervalo de confiança</small><strong>Média</strong></button>
+    <button class="botao-aba" data-aba="aba-4"><small>Intervalo de confiança</small><strong>Proporção</strong></button>
+    <button class="botao-aba" data-aba="aba-5"><small>Ajuste</small><strong>Diminuir o erro</strong></button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- =========================================================
+       ABA 1 – TAMANHO DA AMOSTRA PARA A MÉDIA
+       ========================================================= -->
+  <section class="aba visivel" id="aba-1">
+    <h2 class="titulo-aba">Tamanho da amostra para a média</h2>
+    <p class="descricao-aba">Quantos elementos preciso pesquisar para estimar a média com o erro desejado?</p>
+
+    <div class="grade">
+      <div class="cartao">
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select>
+            <option>Carregar exemplo…</option>
+            <option selected>SRE/API – 95%, σ = 1250, Em = 100</option>
+            <option>Livro – 90%, σ = 40, Em = 5</option>
+          </select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label>Grau de confiança</label>
+            <select><option>90%</option><option selected>95%</option><option>99%</option></select>
+          </div>
+          <div class="valor-z">α = 0,05 &nbsp;·&nbsp; z<sub>α/2</sub> = <b>1,96</b></div>
+        </div>
+        <div class="campo">
+          <label>Desvio padrão (σ)</label>
+          <input type="text" value="1250">
+        </div>
+        <div class="campo">
+          <label>Erro (E<sub>m</sub>)</label>
+          <input type="text" value="100">
+        </div>
+
+        <div class="botoes">
+          <button class="botao botao-principal">Calcular</button>
+          <button class="botao">Comparar 90% / 95% / 99%</button>
+        </div>
+      </div>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmula</h2>
+        <div class="formula">
+          <i>n</i> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span><i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+        </div>
+        <dl class="legenda">
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>σ</dt><dd>desvio padrão populacional</dd>
+          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2>Passo a passo</h2>
+      <ol class="passos">
+        <li><div><span class="conta">95% → α = 0,05 → z<sub>α/2</sub> = 1,96</span><span class="explica">Valor crítico tirado da tabela normal</span></div></li>
+        <li><div><span class="conta">n = (1,96 · 1250 / 100)²</span><span class="explica">Substituindo os valores na fórmula</span></div></li>
+        <li><div><span class="conta">n = (2450 / 100)² = (24,5)²</span><span class="explica">Multiplica em cima e divide pelo erro</span></div></li>
+        <li><div><span class="conta">n = 600,25</span><span class="explica">Eleva ao quadrado</span></div></li>
+        <li><div><span class="conta">n = 601</span><span class="explica">Arredonda para cima</span></div></li>
+      </ol>
+    </div>
+
+    <div class="cartao cartao-resposta">
+      <h2>Resposta</h2>
+      <div class="numeros-resposta">
+        <div class="numero-resposta"><small>Valor exato</small><strong>600,25</strong></div>
+        <div class="numero-resposta destaque"><small>Tamanho da amostra</small><strong>n = 601</strong></div>
+      </div>
+      <p class="frase-resposta">É necessária uma amostra de no mínimo <b>601 elementos</b> para estimar a média com 95% de confiança e erro máximo de 100.</p>
+      <p class="nota">Sempre arredonda para cima, nunca para baixo.</p>
+    </div>
+
+    <div class="cartao">
+      <h2>Comparar níveis de confiança <span class="rotulo-prototipo">(aparece ao clicar no botão)</span></h2>
+      <div class="comparacao">
+        <div class="nivel"><div class="rotulo">90% · z = 1,645</div><div class="valor">n = 423</div><div class="barra"><span style="width:41%"></span></div></div>
+        <div class="nivel atual"><div class="rotulo">95% · z = 1,96</div><div class="valor">n = 601</div><div class="barra"><span style="width:58%"></span></div></div>
+        <div class="nivel"><div class="rotulo">99% · z = 2,575</div><div class="valor">n = 1037</div><div class="barra"><span style="width:100%"></span></div></div>
+      </div>
+      <p class="frase-comparacao">Quanto maior a confiança, maior a amostra e maior a amplitude do intervalo.</p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA 2 – TAMANHO DA AMOSTRA PARA A PROPORÇÃO
+       ========================================================= -->
+  <section class="aba" id="aba-2">
+    <h2 class="titulo-aba">Tamanho da amostra para a proporção</h2>
+    <p class="descricao-aba">Quantos elementos preciso pesquisar para estimar uma porcentagem com o erro desejado?</p>
+
+    <div class="grade">
+      <div class="cartao">
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select>
+            <option>Carregar exemplo…</option>
+            <option selected>Eleitoral – 95%, p = 30%, Ep = 2%</option>
+            <option>QA falhas – 95%, p = 15%, Ep = 3%</option>
+            <option>Sabonete – 95%, p desconhecido, Ep = 4%</option>
+            <option>Consultório – 95%, p = 65%, Ep = 5%</option>
+            <option>TV a cabo – 95%, p desconhecido, Ep = 8%</option>
+          </select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label>Grau de confiança</label>
+            <select><option>90%</option><option selected>95%</option><option>99%</option></select>
+          </div>
+          <div class="valor-z">α = 0,05 &nbsp;·&nbsp; z<sub>α/2</sub> = <b>1,96</b></div>
+        </div>
+        <div class="campo">
+          <label>Proporção p (em %)</label>
+          <input type="text" value="30">
+          <label class="caixa-marcar"><input type="checkbox"> p desconhecido (usar 50%)</label>
+          <div class="ajuda">Quando p é desconhecido usamos 50%: é o valor mais conservador, porque p · (1 − p) atinge o máximo (0,25).</div>
+        </div>
+        <div class="campo">
+          <label>Complemento 1 − p</label>
+          <input type="text" value="70% (0,70)" readonly>
+          <div class="ajuda">Calculado automaticamente</div>
+        </div>
+        <div class="campo">
+          <label>Erro E<sub>p</sub> (em %)</label>
+          <input type="text" value="2">
+        </div>
+
+        <div class="botoes">
+          <button class="botao botao-principal">Calcular</button>
+          <button class="botao">Comparar 90% / 95% / 99%</button>
+        </div>
+      </div>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmula</h2>
+        <div class="formula">
+          <i>n</i> = <span class="fracao"><span><i>z</i><sub>α/2</sub><sup>2</sup> · <i>p</i> · (1 − <i>p</i>)</span><span><i>E</i><sub>p</sub><sup>2</sup></span></span>
+        </div>
+        <dl class="legenda">
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>p</dt><dd>proporção (em decimal: 30% = 0,30)</dd>
+          <dt>1 − p</dt><dd>complemento da proporção</dd>
+          <dt>E<sub>p</sub></dt><dd>erro da proporção (em decimal: 2% = 0,02)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2>Passo a passo</h2>
+      <ol class="passos">
+        <li><div><span class="conta">95% → α = 0,05 → z<sub>α/2</sub> = 1,96</span><span class="explica">Valor crítico tirado da tabela normal</span></div></li>
+        <li><div><span class="conta">p = 30% = 0,30 &nbsp; | &nbsp; 1 − p = 0,70 &nbsp; | &nbsp; E<sub>p</sub> = 2% = 0,02</span><span class="explica">Convertendo as porcentagens para decimal</span></div></li>
+        <li><div><span class="conta">n = 1,96² · 0,30 · 0,70 / 0,02²</span><span class="explica">Substituindo os valores na fórmula</span></div></li>
+        <li><div><span class="conta">n = 3,8416 · 0,21 / 0,0004</span><span class="explica">Calcula os quadrados e o produto p · (1 − p)</span></div></li>
+        <li><div><span class="conta">n = 0,806736 / 0,0004 = 2016,84</span><span class="explica">Divide pelo erro ao quadrado</span></div></li>
+        <li><div><span class="conta">n = 2017</span><span class="explica">Arredonda para cima</span></div></li>
+      </ol>
+    </div>
+
+    <div class="cartao cartao-resposta">
+      <h2>Resposta</h2>
+      <div class="numeros-resposta">
+        <div class="numero-resposta"><small>Valor exato</small><strong>2016,84</strong></div>
+        <div class="numero-resposta destaque"><small>Tamanho da amostra</small><strong>n = 2017</strong></div>
+      </div>
+      <p class="frase-resposta">É necessária uma amostra de no mínimo <b>2017 elementos</b> para estimar a proporção com 95% de confiança e erro máximo de 2%.</p>
+      <p class="nota">Sempre arredonda para cima, nunca para baixo.</p>
+    </div>
+
+    <div class="cartao">
+      <h2>Comparar níveis de confiança <span class="rotulo-prototipo">(aparece ao clicar no botão)</span></h2>
+      <div class="comparacao">
+        <div class="nivel"><div class="rotulo">90% · z = 1,645</div><div class="valor">n = 1421</div><div class="barra"><span style="width:41%"></span></div></div>
+        <div class="nivel atual"><div class="rotulo">95% · z = 1,96</div><div class="valor">n = 2017</div><div class="barra"><span style="width:58%"></span></div></div>
+        <div class="nivel"><div class="rotulo">99% · z = 2,575</div><div class="valor">n = 3482</div><div class="barra"><span style="width:100%"></span></div></div>
+      </div>
+      <p class="frase-comparacao">Quanto maior a confiança, maior a amostra e maior a amplitude do intervalo.</p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA 3 – INTERVALO DE CONFIANÇA PARA A MÉDIA
+       ========================================================= -->
+  <section class="aba" id="aba-3">
+    <h2 class="titulo-aba">Intervalo de confiança para a média</h2>
+    <p class="descricao-aba">Entre quais valores está a verdadeira média da população μ?</p>
+
+    <div class="grade">
+      <div class="cartao">
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select>
+            <option>Carregar exemplo…</option>
+            <option selected>Altura estudantes – 95%, x̄ = 1,75, s = 0,13, n = 40</option>
+            <option>Provedor internet – 95%, x̄ = 140,8, s = 6,5, n = 50</option>
+            <option>Servidor web – 95%, x̄ = 320, s = 45, n = 50</option>
+            <option>Memória RAM – 99%, x̄ = 2,8, s = 0,4, n = 36</option>
+            <option>Sessões e-learning – 90%, x̄ = 18,5, s = 4,2, n = 60</option>
+          </select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label>Grau de confiança</label>
+            <select><option>90%</option><option selected>95%</option><option>99%</option></select>
+          </div>
+          <div class="valor-z">α = 0,05 &nbsp;·&nbsp; z<sub>α/2</sub> = <b>1,96</b></div>
+        </div>
+        <div class="campo">
+          <label>Média amostral (x̄)</label>
+          <input type="text" value="1,75">
+        </div>
+        <div class="campo">
+          <label>Desvio padrão (σ ou s)</label>
+          <input type="text" value="0,13">
+        </div>
+        <div class="campo">
+          <label>Tamanho da amostra (n)</label>
+          <input type="text" value="40">
+        </div>
+
+        <div class="botoes">
+          <button class="botao botao-principal">Calcular</button>
+          <button class="botao">Comparar 90% / 95% / 99%</button>
+        </div>
+      </div>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmulas</h2>
+        <div class="formula">
+          <i>E</i><sub>m</sub> = <i>z</i><sub>α/2</sub> · <span class="fracao"><span><i>σ</i></span><span><span class="raiz">√<span class="raiz-conteudo"><i>n</i></span></span></span></span>
+        </div>
+        <div class="formula">
+          IC = ( <i>x̄</i> − <i>E</i><sub>m</sub> ; <i>x̄</i> + <i>E</i><sub>m</sub> )
+        </div>
+        <dl class="legenda">
+          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>σ</dt><dd>desvio padrão populacional</dd>
+          <dt>s</dt><dd>desvio padrão amostral</dd>
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>x̄</dt><dd>média amostral</dd>
+          <dt>μ</dt><dd>média populacional (o que queremos estimar)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <p class="observacao">Se <b>n &gt; 30</b>, pode-se usar o desvio amostral <b>s</b> no lugar de <b>σ</b>.</p>
+
+    <div class="cartao">
+      <h2>Passo a passo</h2>
+      <ol class="passos">
+        <li><div><span class="conta">95% → α = 0,05 → z<sub>α/2</sub> = 1,96</span><span class="explica">Valor crítico tirado da tabela normal</span></div></li>
+        <li><div><span class="conta">√40 = 6,3246</span><span class="explica">Raiz quadrada do tamanho da amostra</span></div></li>
+        <li><div><span class="conta">E<sub>m</sub> = 1,96 · 0,13 / 6,3246 = 1,96 · 0,0206 = 0,0403</span><span class="explica">Calculando o erro</span></div></li>
+        <li><div><span class="conta">Limite inferior = 1,75 − 0,0403 = 1,7097</span><span class="explica">x̄ − E<sub>m</sub></span></div></li>
+        <li><div><span class="conta">Limite superior = 1,75 + 0,0403 = 1,7903</span><span class="explica">x̄ + E<sub>m</sub></span></div></li>
+        <li><div><span class="conta">Amplitude = 1,7903 − 1,7097 = 0,0806</span><span class="explica">Tamanho do intervalo (2 · E<sub>m</sub>)</span></div></li>
+      </ol>
+    </div>
+
+    <div class="cartao cartao-resposta">
+      <h2>Resposta</h2>
+      <div class="numeros-resposta">
+        <div class="numero-resposta"><small>Erro E<sub>m</sub></small><strong>0,04</strong><span class="exato">exato: 0,0403</span></div>
+        <div class="numero-resposta destaque"><small>Intervalo de confiança</small><strong>(1,71 ; 1,79)</strong><span class="exato">exato: (1,7097 ; 1,7903)</span></div>
+        <div class="numero-resposta"><small>Amplitude</small><strong>0,08</strong><span class="exato">exato: 0,0806</span></div>
+      </div>
+      <p class="frase-resposta">Podemos afirmar com 95% de confiança que o intervalo de <b>1,71 a 1,79</b> contém a verdadeira média populacional μ.</p>
+      <p class="nota">Os slides arredondam os valores intermediários, por isso pode haver pequena diferença.</p>
+    </div>
+
+    <div class="cartao">
+      <h2>Comparar níveis de confiança <span class="rotulo-prototipo">(aparece ao clicar no botão)</span></h2>
+      <div class="comparacao">
+        <div class="nivel"><div class="rotulo">90% · z = 1,645</div><div class="valor">(1,72 ; 1,78)</div><div class="barra"><span style="width:64%"></span></div><div class="ajuda">amplitude 0,07</div></div>
+        <div class="nivel atual"><div class="rotulo">95% · z = 1,96</div><div class="valor">(1,71 ; 1,79)</div><div class="barra"><span style="width:76%"></span></div><div class="ajuda">amplitude 0,08</div></div>
+        <div class="nivel"><div class="rotulo">99% · z = 2,575</div><div class="valor">(1,70 ; 1,80)</div><div class="barra"><span style="width:100%"></span></div><div class="ajuda">amplitude 0,11</div></div>
+      </div>
+      <p class="frase-comparacao">Quanto maior a confiança, maior a amostra e maior a amplitude do intervalo.</p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA 4 – INTERVALO DE CONFIANÇA PARA A PROPORÇÃO
+       ========================================================= -->
+  <section class="aba" id="aba-4">
+    <h2 class="titulo-aba">Intervalo de confiança para a proporção</h2>
+    <p class="descricao-aba">Entre quais porcentagens está a verdadeira proporção da população π?</p>
+
+    <div class="grade">
+      <div class="cartao">
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select>
+            <option>Carregar exemplo…</option>
+            <option>Eleitoral – 95%, 860 de 2200</option>
+            <option>Barbeador – 90%, 40 de 100</option>
+            <option>Etiquetas boas – 95%, 465 de 500</option>
+            <option>Desemprego – 95%, 89 de 1000</option>
+            <option selected>Bugs – 95%, 34 de 200, padrão 20%</option>
+            <option>2FA – 99%, 315 de 500</option>
+            <option>App mobile – 95%, 560 de 800</option>
+          </select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label>Grau de confiança</label>
+            <select><option>90%</option><option selected>95%</option><option>99%</option></select>
+          </div>
+          <div class="valor-z">α = 0,05 &nbsp;·&nbsp; z<sub>α/2</sub> = <b>1,96</b></div>
+        </div>
+        <div class="campo">
+          <label>Número de sucessos</label>
+          <input type="text" value="34">
+        </div>
+        <div class="campo">
+          <label>Tamanho da amostra (n)</label>
+          <input type="text" value="200">
+        </div>
+        <div class="campo">
+          <label>Padrão aceitável (%) <span style="font-weight:400;color:var(--cinza)">– opcional</span></label>
+          <input type="text" value="20">
+          <div class="ajuda">Se preenchido, verifica se o limite superior ultrapassa o padrão.</div>
+        </div>
+
+        <div class="botoes">
+          <button class="botao botao-principal">Calcular</button>
+          <button class="botao">Comparar 90% / 95% / 99%</button>
+        </div>
+      </div>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmulas</h2>
+        <div class="formula">
+          <i>p</i> = <span class="fracao"><span>sucessos</span><span><i>n</i></span></span>
+        </div>
+        <div class="formula">
+          <i>E</i><sub>p</sub> = <i>z</i><sub>α/2</sub> · <span class="raiz">√<span class="raiz-conteudo"><span class="fracao"><span><i>p</i>(1 − <i>p</i>)</span><span><i>n</i></span></span></span></span>
+        </div>
+        <div class="formula">
+          IC = ( <i>p</i> − <i>E</i><sub>p</sub> ; <i>p</i> + <i>E</i><sub>p</sub> )
+        </div>
+        <dl class="legenda">
+          <dt>p</dt><dd>proporção amostral</dd>
+          <dt>1 − p</dt><dd>complemento</dd>
+          <dt>E<sub>p</sub></dt><dd>erro da proporção</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>π</dt><dd>proporção populacional (o que queremos estimar)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2>Passo a passo</h2>
+      <ol class="passos">
+        <li><div><span class="conta">95% → α = 0,05 → z<sub>α/2</sub> = 1,96</span><span class="explica">Valor crítico tirado da tabela normal</span></div></li>
+        <li><div><span class="conta">p = 34 / 200 = 0,17 &nbsp; | &nbsp; 1 − p = 0,83</span><span class="explica">Proporção de sucessos na amostra</span></div></li>
+        <li><div><span class="conta">E<sub>p</sub> = 1,96 · √(0,17 · 0,83 / 200) = 1,96 · √0,000706</span><span class="explica">Substituindo os valores na fórmula</span></div></li>
+        <li><div><span class="conta">E<sub>p</sub> = 1,96 · 0,0266 = 0,0521</span><span class="explica">Calculando o erro</span></div></li>
+        <li><div><span class="conta">IC = (0,17 − 0,0521 ; 0,17 + 0,0521) = (0,1179 ; 0,2221)</span><span class="explica">p − E<sub>p</sub> e p + E<sub>p</sub></span></div></li>
+        <li><div><span class="conta">22,21% &gt; 20%</span><span class="explica">Comparando o limite superior com o padrão aceitável</span></div></li>
+      </ol>
+    </div>
+
+    <div class="cartao cartao-resposta">
+      <h2>Resposta</h2>
+      <div class="numeros-resposta">
+        <div class="numero-resposta"><small>p</small><strong>0,17</strong></div>
+        <div class="numero-resposta"><small>Erro E<sub>p</sub></small><strong>0,05</strong><span class="exato">exato: 0,0521</span></div>
+        <div class="numero-resposta destaque"><small>Intervalo de confiança</small><strong>(12% ; 22%)</strong><span class="exato">decimal: (0,12 ; 0,22) · exato: (0,1179 ; 0,2221)</span></div>
+      </div>
+      <p class="frase-resposta">Podemos afirmar com 95% de confiança que o intervalo de <b>12% a 22%</b> contém a verdadeira proporção populacional π.</p>
+      <div class="alerta alerta-ruim">O limite superior (22%) ultrapassa o padrão aceitável de 20% → a qualidade NÃO está garantida.</div>
+      <p class="nota">Os slides arredondam os valores intermediários, por isso pode haver pequena diferença.</p>
+    </div>
+
+    <div class="cartao">
+      <h2>Comparar níveis de confiança <span class="rotulo-prototipo">(aparece ao clicar no botão)</span></h2>
+      <div class="comparacao">
+        <div class="nivel"><div class="rotulo">90% · z = 1,645</div><div class="valor">(13% ; 21%)</div><div class="barra"><span style="width:64%"></span></div><div class="ajuda">amplitude 0,09</div></div>
+        <div class="nivel atual"><div class="rotulo">95% · z = 1,96</div><div class="valor">(12% ; 22%)</div><div class="barra"><span style="width:76%"></span></div><div class="ajuda">amplitude 0,10</div></div>
+        <div class="nivel"><div class="rotulo">99% · z = 2,575</div><div class="valor">(10% ; 24%)</div><div class="barra"><span style="width:100%"></span></div><div class="ajuda">amplitude 0,14</div></div>
+      </div>
+      <p class="frase-comparacao">Quanto maior a confiança, maior a amostra e maior a amplitude do intervalo.</p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       ABA 5 – DIMINUIR O ERRO
+       ========================================================= -->
+  <section class="aba" id="aba-5">
+    <h2 class="titulo-aba">Diminuir o erro</h2>
+    <p class="descricao-aba">Se eu quiser um erro menor, quantos elementos a mais preciso pesquisar?</p>
+
+    <div class="grade">
+      <div class="cartao">
+        <h2>Dados</h2>
+        <div class="exemplo">
+          <select>
+            <option>Carregar exemplo…</option>
+            <option selected>Provedor internet – 95%, s = 6,5, n = 50, erro ÷ 2</option>
+          </select>
+        </div>
+
+        <div class="campo linha-confianca">
+          <div>
+            <label>Grau de confiança</label>
+            <select><option>90%</option><option selected>95%</option><option>99%</option></select>
+          </div>
+          <div class="valor-z">α = 0,05 &nbsp;·&nbsp; z<sub>α/2</sub> = <b>1,96</b></div>
+        </div>
+        <div class="campo">
+          <label>Desvio padrão (σ ou s)</label>
+          <input type="text" value="6,5">
+        </div>
+        <div class="campo">
+          <label>Tamanho da amostra atual (n)</label>
+          <input type="text" value="50">
+        </div>
+        <div class="campo">
+          <label>Erro atual (E<sub>m</sub>)</label>
+          <input type="text" value="1,8017">
+        </div>
+        <div class="campo">
+          <label>Dividir o erro por</label>
+          <input type="text" value="2">
+          <div class="ajuda">Ex.: 2 = erro pela metade</div>
+        </div>
+
+        <div class="botoes">
+          <button class="botao botao-principal">Calcular</button>
+          <button class="botao">Comparar 90% / 95% / 99%</button>
+        </div>
+      </div>
+
+      <div class="cartao cartao-formula">
+        <h2>Fórmulas</h2>
+        <div class="formula">
+          novo <i>E</i><sub>m</sub> = <span class="fracao"><span><i>E</i><sub>m</sub> atual</span><span>fator</span></span>
+        </div>
+        <div class="formula">
+          novo <i>n</i> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span>novo <i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+        </div>
+        <dl class="legenda">
+          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+          <dt>fator</dt><dd>quantas vezes queremos diminuir o erro</dd>
+          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
+          <dt>σ</dt><dd>desvio padrão (ou s, se n &gt; 30)</dd>
+          <dt>n</dt><dd>tamanho da amostra</dd>
+        </dl>
+      </div>
+    </div>
+
+    <p class="observacao"><b>Dica:</b> erro pela metade → amostra 4 vezes maior. O erro cai com a raiz de n, então dividir o erro por k multiplica a amostra por k².</p>
+
+    <div class="cartao">
+      <h2>Passo a passo</h2>
+      <ol class="passos">
+        <li><div><span class="conta">95% → α = 0,05 → z<sub>α/2</sub> = 1,96</span><span class="explica">Valor crítico tirado da tabela normal</span></div></li>
+        <li><div><span class="conta">novo E<sub>m</sub> = 1,8017 / 2 = 0,9009</span><span class="explica">Dividindo o erro atual pelo fator</span></div></li>
+        <li><div><span class="conta">novo n = (1,96 · 6,5 / 0,9009)²</span><span class="explica">Substituindo na fórmula do tamanho da amostra</span></div></li>
+        <li><div><span class="conta">novo n = (12,74 / 0,9009)² = (14,1421)² = 200,00</span><span class="explica">Eleva ao quadrado</span></div></li>
+        <li><div><span class="conta">novo n = 200</span><span class="explica">Arredonda para cima</span></div></li>
+        <li><div><span class="conta">aumento = 200 − 50 = 150</span><span class="explica">Quantos elementos a mais pesquisar</span></div></li>
+      </ol>
+    </div>
+
+    <div class="cartao cartao-resposta">
+      <h2>Resposta</h2>
+      <div class="numeros-resposta">
+        <div class="numero-resposta"><small>Novo erro</small><strong>0,90</strong><span class="exato">exato: 0,9009</span></div>
+        <div class="numero-resposta destaque"><small>Novo tamanho da amostra</small><strong>n = 200</strong><span class="exato">exato: 200,00</span></div>
+        <div class="numero-resposta"><small>Aumento</small><strong>+150</strong><span class="exato">4 vezes a amostra atual</span></div>
+      </div>
+      <p class="frase-resposta">Para reduzir o erro pela metade (de 1,80 para 0,90), a amostra precisa passar de 50 para <b>200 elementos</b>, ou seja, <b>150 a mais</b>.</p>
+      <p class="nota">Sempre arredonda para cima, nunca para baixo.</p>
+    </div>
+
+    <div class="cartao">
+      <h2>Comparar níveis de confiança <span class="rotulo-prototipo">(aparece ao clicar no botão)</span></h2>
+      <div class="comparacao">
+        <div class="nivel"><div class="rotulo">90% · z = 1,645</div><div class="valor">n = 169</div><div class="barra"><span style="width:49%"></span></div></div>
+        <div class="nivel atual"><div class="rotulo">95% · z = 1,96</div><div class="valor">n = 200</div><div class="barra"><span style="width:58%"></span></div></div>
+        <div class="nivel"><div class="rotulo">99% · z = 2,575</div><div class="valor">n = 346</div><div class="barra"><span style="width:100%"></span></div></div>
+      </div>
+      <p class="frase-comparacao">Quanto maior a confiança, maior a amostra e maior a amplitude do intervalo.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // No protótipo o único código é a troca de abas (não há cálculos ainda).
+  const botoesDasAbas = document.querySelectorAll(".botao-aba");
+  const todasAsAbas = document.querySelectorAll(".aba");
+
+  function mostrarAba(idDaAba) {
+    todasAsAbas.forEach(function (aba) {
+      const ehAbaEscolhida = aba.id === idDaAba;
+      aba.classList.toggle("visivel", ehAbaEscolhida);
+    });
+    botoesDasAbas.forEach(function (botao) {
+      const ehBotaoEscolhido = botao.dataset.aba === idDaAba;
+      botao.classList.toggle("ativa", ehBotaoEscolhido);
+    });
+  }
+
+  botoesDasAbas.forEach(function (botao) {
+    botao.addEventListener("click", function () {
+      mostrarAba(botao.dataset.aba);
+    });
+  });
+</script>
+
+</body>
+</html>
