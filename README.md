@@ -23,6 +23,10 @@ O botão **? Fórmulas**, no canto da tela, abre uma janela com todas as fórmul
 - Tamanho da amostra sempre é arredondado para cima
 - Intervalos mostram o valor exato (4 casas) e o arredondado (2 casas)
 
+## Publicação
+
+O site fica em https://guilhermeoliveira0.github.io/calculadora-estatistica/ e é publicado sozinho pelo workflow `.github/workflows/publicar-pages.yml` a cada push na branch `main`. Para publicar de novo sem mudar nada, use o botão "Run workflow" na aba Actions.
+
 ## Arquivos
 
 - `index.html`: a calculadora
