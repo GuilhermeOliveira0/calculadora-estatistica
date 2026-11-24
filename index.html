@@ -201,6 +201,8 @@
   }
   .valor-z b { color: var(--verde-escuro); }
 
+  .campo input.campo-outra-confianca { margin-top: 8px; }
+
   .caixa-marcar {
     display: flex !important;
     align-items: center;
@@ -630,11 +632,18 @@
     border-bottom: 1px solid var(--borda);
   }
   .tabela-z td { padding: 8px 6px; border-bottom: 1px solid var(--cinza-claro); }
+  .tabela-z td { padding: 4px 6px; }
   .tabela-z .valor-da-tabela {
     font-family: var(--letra-de-mao);
     font-weight: 700;
-    font-size: 1.7rem;
+    font-size: 1.5rem;
     line-height: 1;
+  }
+  .tabela-z .nivel-dos-slides td { background: var(--verde-claro); font-weight: 600; }
+  .nota-tabela {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+    color: var(--cinza);
   }
 
   /* ---------- Celular ---------- */
@@ -691,11 +700,9 @@
         <div class="campo linha-confianca">
           <div>
             <label for="am-confianca">Grau de confiança</label>
-            <select id="am-confianca">
-              <option value="90">90%</option>
-              <option value="95" selected>95%</option>
-              <option value="99">99%</option>
-            </select>
+            <!-- As opções são preenchidas pelo JavaScript (lista NIVEIS_DE_CONFIANCA) -->
+            <select id="am-confianca"></select>
+            <input type="text" id="am-confianca-outra" class="campo-outra-confianca escondido" inputmode="decimal" autocomplete="off" placeholder="Digite o grau em %, ex.: 97" aria-label="Outro grau de confiança (%)">
           </div>
           <div class="valor-z" id="am-z"></div>
         </div>
@@ -761,11 +768,9 @@
         <div class="campo linha-confianca">
           <div>
             <label for="ap-confianca">Grau de confiança</label>
-            <select id="ap-confianca">
-              <option value="90">90%</option>
-              <option value="95" selected>95%</option>
-              <option value="99">99%</option>
-            </select>
+            <!-- As opções são preenchidas pelo JavaScript (lista NIVEIS_DE_CONFIANCA) -->
+            <select id="ap-confianca"></select>
+            <input type="text" id="ap-confianca-outra" class="campo-outra-confianca escondido" inputmode="decimal" autocomplete="off" placeholder="Digite o grau em %, ex.: 97" aria-label="Outro grau de confiança (%)">
           </div>
           <div class="valor-z" id="ap-z"></div>
         </div>
@@ -839,11 +844,9 @@
         <div class="campo linha-confianca">
           <div>
             <label for="im-confianca">Grau de confiança</label>
-            <select id="im-confianca">
-              <option value="90">90%</option>
-              <option value="95" selected>95%</option>
-              <option value="99">99%</option>
-            </select>
+            <!-- As opções são preenchidas pelo JavaScript (lista NIVEIS_DE_CONFIANCA) -->
+            <select id="im-confianca"></select>
+            <input type="text" id="im-confianca-outra" class="campo-outra-confianca escondido" inputmode="decimal" autocomplete="off" placeholder="Digite o grau em %, ex.: 97" aria-label="Outro grau de confiança (%)">
           </div>
           <div class="valor-z" id="im-z"></div>
         </div>
@@ -927,11 +930,9 @@
         <div class="campo linha-confianca">
           <div>
             <label for="ip-confianca">Grau de confiança</label>
-            <select id="ip-confianca">
-              <option value="90">90%</option>
-              <option value="95" selected>95%</option>
-              <option value="99">99%</option>
-            </select>
+            <!-- As opções são preenchidas pelo JavaScript (lista NIVEIS_DE_CONFIANCA) -->
+            <select id="ip-confianca"></select>
+            <input type="text" id="ip-confianca-outra" class="campo-outra-confianca escondido" inputmode="decimal" autocomplete="off" placeholder="Digite o grau em %, ex.: 97" aria-label="Outro grau de confiança (%)">
           </div>
           <div class="valor-z" id="ip-z"></div>
         </div>
@@ -1017,11 +1018,9 @@
         <div class="campo linha-confianca">
           <div>
             <label for="de-confianca">Grau de confiança</label>
-            <select id="de-confianca">
-              <option value="90">90%</option>
-              <option value="95" selected>95%</option>
-              <option value="99">99%</option>
-            </select>
+            <!-- As opções são preenchidas pelo JavaScript (lista NIVEIS_DE_CONFIANCA) -->
+            <select id="de-confianca"></select>
+            <input type="text" id="de-confianca-outra" class="campo-outra-confianca escondido" inputmode="decimal" autocomplete="off" placeholder="Digite o grau em %, ex.: 97" aria-label="Outro grau de confiança (%)">
           </div>
           <div class="valor-z" id="de-z"></div>
         </div>
@@ -1112,12 +1111,10 @@
           <thead>
             <tr><th>Grau de confiança</th><th>α</th><th>z<sub>α/2</sub></th></tr>
           </thead>
-          <tbody>
-            <tr><td>90%</td><td>0,10</td><td class="valor-da-tabela">1,645</td></tr>
-            <tr><td>95%</td><td>0,05</td><td class="valor-da-tabela">1,96</td></tr>
-            <tr><td>99%</td><td>0,01</td><td class="valor-da-tabela">2,575</td></tr>
-          </tbody>
+          <!-- As linhas são preenchidas pelo JavaScript (lista NIVEIS_DE_CONFIANCA) -->
+          <tbody id="tabela-z-linhas"></tbody>
         </table>
+        <p class="nota-tabela">Em verde, os graus usados nos slides. Para outro grau, escolha "Outro valor…" e a calculadora acha o z pela tabela normal.</p>
       </section>
     </div>
 
@@ -1145,11 +1142,83 @@
    ================================================================= */
 
 // ---------- 1. Valores críticos da tabela normal ----------
-const VALORES_CRITICOS = {
-  "90": { alfa: 0.10, z: 1.645 },
-  "95": { alfa: 0.05, z: 1.96 },
-  "99": { alfa: 0.01, z: 2.575 },
-};
+// 90%, 95% e 99% usam os valores dos slides da professora.
+// Os outros vêm da tabela normal (arredondados em 2 casas, como na tabela).
+const NIVEIS_DE_CONFIANCA = [
+  { porcentagem: 80, z: 1.28 },
+  { porcentagem: 85, z: 1.44 },
+  { porcentagem: 90, z: 1.645 },
+  { porcentagem: 92, z: 1.75 },
+  { porcentagem: 94, z: 1.88 },
+  { porcentagem: 95, z: 1.96 },
+  { porcentagem: 96, z: 2.05 },
+  { porcentagem: 98, z: 2.33 },
+  { porcentagem: 99, z: 2.575 },
+  { porcentagem: 99.5, z: 2.81 },
+  { porcentagem: 99.9, z: 3.29 },
+];
+const NIVEIS_DOS_SLIDES = [90, 95, 99];
+const CONFIANCA_PADRAO = 95;
+const OPCAO_OUTRO_NIVEL = "outro";
+
+// Procura o nível na lista: 95 → { porcentagem: 95, z: 1.96 }
+function buscarNivelDeConfianca(porcentagem) {
+  return NIVEIS_DE_CONFIANCA.find(function (nivel) {
+    return nivel.porcentagem === porcentagem;
+  });
+}
+
+// Faz a conta de um polinômio pelo método de Horner: c0·x⁵ + c1·x⁴ + ... + c5
+function calcularPolinomio(coeficientes, x) {
+  let resultado = 0;
+  coeficientes.forEach(function (coeficiente) {
+    resultado = resultado * x + coeficiente;
+  });
+  return resultado;
+}
+
+// Faz o caminho contrário da tabela normal: recebe a área (probabilidade) e devolve o z.
+// Usa a aproximação de Acklam, que erra menos de 0,0000005 (bem mais preciso que a tabela).
+// Só precisamos da metade de cima da curva (probabilidade entre 0,5 e 1).
+function inversaDaNormalPadrao(probabilidade) {
+  const LIMITE_DA_CAUDA = 0.97575;
+  const estaNaCauda = probabilidade > LIMITE_DA_CAUDA;
+
+  if (!estaNaCauda) {
+    const distanciaDoMeio = probabilidade - 0.5;
+    const distanciaAoQuadrado = distanciaDoMeio * distanciaDoMeio;
+    const numerador = calcularPolinomio(
+      [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.3577518672690, -30.66479806614716, 2.506628277459239],
+      distanciaAoQuadrado
+    );
+    const denominador = calcularPolinomio(
+      [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572, 1],
+      distanciaAoQuadrado
+    );
+    return numerador * distanciaDoMeio / denominador;
+  }
+
+  const areaQueSobra = 1 - probabilidade;
+  const auxiliar = Math.sqrt(-2 * Math.log(areaQueSobra));
+  const numerador = calcularPolinomio(
+    [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783],
+    auxiliar
+  );
+  const denominador = calcularPolinomio(
+    [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416, 1],
+    auxiliar
+  );
+  return -numerador / denominador;
+}
+
+// Grau de confiança que não está na lista (ex.: 97%): calcula o z como a tabela faria.
+// Confiança 97% → α = 0,03 → sobra α/2 = 0,015 em cada ponta → procura a área 0,985
+function calcularValorCriticoPelaTabela(porcentagem) {
+  const alfa = 1 - porcentagem / 100;
+  const areaAteOZ = 1 - alfa / 2;
+  const z = inversaDaNormalPadrao(areaAteOZ);
+  return arredondar(z, 2);
+}
 
 // ---------- 2. Notação da professora (pronta para usar no HTML) ----------
 const Z_ALFA = "z<sub>α/2</sub>";
@@ -1297,20 +1366,88 @@ function lerPorcentagemComoDecimal(idDoCampo, nomeDoCampo) {
   return porcentagem / 100;
 }
 
-// Devolve { porcentagem: "95", alfa: 0.05, z: 1.96 } da aba
+// Devolve { porcentagem: "95", alfa: 0.05, z: 1.96, daTabela: false } da aba.
+// "porcentagem" já vem pronta para mostrar na tela (ex.: "99,5").
 function lerConfianca(prefixo) {
-  const porcentagem = pegarCampo(prefixo + "-confianca").value;
-  const valorCritico = VALORES_CRITICOS[porcentagem];
-  return { porcentagem: porcentagem, alfa: valorCritico.alfa, z: valorCritico.z };
+  const valorEscolhido = pegarCampo(prefixo + "-confianca").value;
+  const escolheuOutroNivel = valorEscolhido === OPCAO_OUTRO_NIVEL;
+
+  let porcentagem;
+  let z;
+  if (escolheuOutroNivel) {
+    porcentagem = lerNumero(prefixo + "-confianca-outra", "Grau de confiança (%)");
+    const foraDoLimite = porcentagem < 50 || porcentagem >= 100;
+    if (foraDoLimite) {
+      falharValidacao("O grau de confiança precisa estar entre 50 e 99,99 (digite em %, ex.: 97 para 97%).");
+    }
+    z = calcularValorCriticoPelaTabela(porcentagem);
+  } else {
+    porcentagem = Number(valorEscolhido);
+    z = buscarNivelDeConfianca(porcentagem).z;
+  }
+
+  const alfa = arredondar(1 - porcentagem / 100, 4);
+  return { porcentagem: formatarNumero(porcentagem, 2), alfa: alfa, z: z, daTabela: escolheuOutroNivel };
+}
+
+// Igual a lerConfianca, mas sem mostrar erro: devolve null se o grau digitado for inválido.
+// Usada nos campos que se atualizam sozinhos enquanto a pessoa digita.
+function tentarLerConfianca(prefixo) {
+  try {
+    return lerConfianca(prefixo);
+  } catch (erro) {
+    const ehErroDoUsuario = erro instanceof ErroDeValidacao;
+    if (!ehErroDoUsuario) {
+      throw erro;
+    }
+    return null;
+  }
+}
+
+// α com 2 casas como nos slides (0,05), ou mais casas quando precisa (99,5% → 0,005)
+function formatarAlfa(alfa) {
+  const cabeEmDuasCasas = arredondar(alfa, 2) === alfa;
+  if (cabeEmDuasCasas) {
+    return formatarFixo(alfa, 2);
+  }
+  return formatarNumero(alfa, 4);
 }
 
 // Passo 1 de quase todas as abas
 function criarPassoValorCritico(confianca) {
-  return {
-    titulo: "Valor crítico",
-    conta: confianca.porcentagem + "% → α = " + formatarFixo(confianca.alfa, 2) +
-           " → " + Z_ALFA + " = " + formatarNumero(confianca.z),
-  };
+  let conta = confianca.porcentagem + "% → α = " + formatarAlfa(confianca.alfa) +
+              " → " + Z_ALFA + " = " + formatarNumero(confianca.z);
+  if (confianca.daTabela) {
+    conta += " (pela tabela normal)";
+  }
+  return { titulo: "Valor crítico", conta: conta };
+}
+
+// Coloca no seletor todos os graus da lista, mais a opção "Outro valor…"
+function preencherNiveisDeConfianca(prefixo) {
+  const seletor = pegarCampo(prefixo + "-confianca");
+  seletor.innerHTML = "";
+
+  NIVEIS_DE_CONFIANCA.forEach(function (nivel) {
+    const opcao = document.createElement("option");
+    opcao.value = String(nivel.porcentagem);
+    opcao.textContent = formatarNumero(nivel.porcentagem, 2) + "%";
+    // defaultSelected: é o valor que volta quando clica em "Limpar"
+    opcao.defaultSelected = nivel.porcentagem === CONFIANCA_PADRAO;
+    seletor.appendChild(opcao);
+  });
+
+  const opcaoOutro = document.createElement("option");
+  opcaoOutro.value = OPCAO_OUTRO_NIVEL;
+  opcaoOutro.textContent = "Outro valor…";
+  seletor.appendChild(opcaoOutro);
+}
+
+// Mostra o campo para digitar o grau só quando "Outro valor…" está escolhido
+function mostrarOuEsconderOutroNivel(prefixo) {
+  const escolheuOutroNivel = pegarCampo(prefixo + "-confianca").value === OPCAO_OUTRO_NIVEL;
+  const campoOutroNivel = pegarCampo(prefixo + "-confianca-outra");
+  campoOutroNivel.classList.toggle("escondido", !escolheuOutroNivel);
 }
 
 // ---------- 5. Mostrar na tela ----------
@@ -1378,9 +1515,14 @@ function mostrarResultado(prefixo, passos, resposta) {
 
 // Mostra "α = 0,05 · zα/2 = 1,96" ao lado do grau de confiança
 function atualizarValorCritico(prefixo) {
-  const confianca = lerConfianca(prefixo);
-  pegarCampo(prefixo + "-z").innerHTML =
-    "α = " + formatarFixo(confianca.alfa, 2) + " &nbsp;·&nbsp; " + Z_ALFA + " = <b>" + formatarNumero(confianca.z) + "</b>";
+  const caixaDoValorCritico = pegarCampo(prefixo + "-z");
+  const confianca = tentarLerConfianca(prefixo);
+  if (confianca === null) {
+    caixaDoValorCritico.innerHTML = "digite um grau entre 50 e 99,99";
+    return;
+  }
+  caixaDoValorCritico.innerHTML =
+    "α = " + formatarAlfa(confianca.alfa) + " &nbsp;·&nbsp; " + Z_ALFA + " = <b>" + formatarNumero(confianca.z) + "</b>";
 }
 
 // ---------- 6. Ligar cada aba aos seus botões e exemplos ----------
@@ -1450,6 +1592,7 @@ function registrarAba(prefixo, configuracao) {
   const botaoLimpar = formulario.querySelector(".botao-limpar");
 
   preencherMenuDeExemplos(prefixo, configuracao.exemplos);
+  preencherNiveisDeConfianca(prefixo);
   atualizarValorCritico(prefixo);
 
   formulario.addEventListener("submit", function (evento) {
@@ -1458,6 +1601,12 @@ function registrarAba(prefixo, configuracao) {
   });
 
   seletorDeConfianca.addEventListener("change", function () {
+    mostrarOuEsconderOutroNivel(prefixo);
+    atualizarValorCritico(prefixo);
+  });
+
+  // Enquanto digita outro grau (ex.: 97), o zα/2 ao lado já vai sendo calculado
+  pegarCampo(prefixo + "-confianca-outra").addEventListener("input", function () {
     atualizarValorCritico(prefixo);
   });
 
@@ -1527,6 +1676,26 @@ function montarAjudaDasFormulas() {
 }
 
 montarAjudaDasFormulas();
+
+// Preenche a tabela de valores críticos da janela de ajuda com a mesma lista do seletor
+function montarTabelaDeValoresCriticos() {
+  const corpoDaTabela = document.getElementById("tabela-z-linhas");
+  NIVEIS_DE_CONFIANCA.forEach(function (nivel) {
+    const alfa = arredondar(1 - nivel.porcentagem / 100, 4);
+    const linha = document.createElement("tr");
+    const ehNivelDosSlides = NIVEIS_DOS_SLIDES.includes(nivel.porcentagem);
+    if (ehNivelDosSlides) {
+      linha.className = "nivel-dos-slides";
+    }
+    linha.innerHTML =
+      "<td>" + formatarNumero(nivel.porcentagem, 2) + "%</td>" +
+      "<td>" + formatarAlfa(alfa) + "</td>" +
+      '<td class="valor-da-tabela">' + formatarNumero(nivel.z) + "</td>";
+    corpoDaTabela.appendChild(linha);
+  });
+}
+
+montarTabelaDeValoresCriticos();
 
 botaoAjuda.addEventListener("click", function () {
   janelaDeAjuda.showModal();
@@ -1956,13 +2125,14 @@ registrarAba("ap", {
 // Mostra o erro atual (Em = zα/2 · σ / √n) no campo automático
 function atualizarErroAtual() {
   const campoErroAtual = pegarCampo("de-erro-atual");
-  const confianca = lerConfianca("de");
+  const confianca = tentarLerConfianca("de");
   const desvio = lerNumeroSemAvisar("de-desvio");
   const tamanhoAtual = lerNumeroSemAvisar("de-n");
 
+  const confiancaValida = confianca !== null;
   const desvioValido = desvio > 0;
   const tamanhoValido = Number.isInteger(tamanhoAtual) && tamanhoAtual > 0;
-  if (!desvioValido || !tamanhoValido) {
+  if (!confiancaValida || !desvioValido || !tamanhoValido) {
     campoErroAtual.value = "";
     return;
   }
@@ -1972,6 +2142,7 @@ function atualizarErroAtual() {
 }
 
 pegarCampo("de-confianca").addEventListener("change", atualizarErroAtual);
+pegarCampo("de-confianca-outra").addEventListener("input", atualizarErroAtual);
 pegarCampo("de-desvio").addEventListener("input", atualizarErroAtual);
 pegarCampo("de-desvio").addEventListener("change", atualizarErroAtual);
 pegarCampo("de-n").addEventListener("input", atualizarErroAtual);
