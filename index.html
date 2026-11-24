@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calculadora de Estatística</title>
+<!-- Letras de mão para as fórmulas: Caveat (letras e números) e Klee One (letras gregas σ, α, μ, π) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Klee+One:wght@600&display=swap" rel="stylesheet">
 <style>
   /* ---------- Cores e medidas usadas em toda a página ---------- */
   :root {
@@ -18,7 +22,11 @@
     --branco: #ffffff;
     --vermelho: #b42318;
     --vermelho-claro: #fdecea;
+    --marca-texto: rgba(29, 122, 76, 0.28);
     --raio: 10px;
+
+    /* Sem internet, usa "Segoe Print" (letra de mão que já vem no Windows) */
+    --letra-de-mao: "Caveat", "Klee One", "Segoe Print", "Comic Sans MS", cursive;
   }
 
   * { box-sizing: border-box; }
@@ -254,16 +262,59 @@
 
   /* ---------- Fórmula ---------- */
   .cartao-formula { background: var(--verde-claro); border-color: #cfe5d8; }
+  /* Quadro da fórmula: folha branca, escrita à mão com caneta preta */
   .formula {
-    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
-    font-size: 1.7rem;
+    font-family: var(--letra-de-mao);
+    font-weight: 700;
+    font-size: 2.4rem;
+    line-height: 1.2;
+    color: var(--preto);
     text-align: center;
-    padding: 18px 8px;
+    padding: 16px 12px 12px;
     background: var(--branco);
+    border: 1px solid var(--borda);
     border-radius: 8px;
     margin-bottom: 10px;
     overflow-x: auto;
     white-space: nowrap;
+  }
+  .formula i { font-style: normal; }
+  .formula sub,
+  .formula sup { font-size: 0.65em; }
+  .formula .parentese { font-size: 1.7em; font-weight: 500; }
+  .formula .fracao { margin: 0 6px; }
+  .formula .fracao > span { padding: 0 8px; }
+  /* Traço da fração mais grosso e levemente torto, como feito à caneta */
+  .formula .fracao > span:first-child {
+    border-bottom-width: 3px;
+    border-radius: 0 0 50% 40% / 0 0 4px 2px;
+    transform: rotate(-0.8deg);
+  }
+  .formula .raiz-conteudo { border-top-width: 3px; }
+  .formula .raiz-simbolo path { stroke-width: 3; }
+
+  /* O que a fórmula calcula ganha marca-texto verde */
+  .resultado {
+    background: linear-gradient(transparent 55%, var(--marca-texto) 55%);
+    padding: 0 6px;
+    border-radius: 4px;
+  }
+
+  /* x̄: tracinho desenhado logo acima do x */
+  .xbarra {
+    position: relative;
+    display: inline-block;
+    padding: 0 0.08em;
+  }
+  .xbarra::before {
+    content: "";
+    position: absolute;
+    left: 0.08em;
+    right: -0.06em;
+    top: 0.42em;
+    border-top: 3px solid currentColor;
+    border-radius: 2px;
+    transform: rotate(-4deg);
   }
 
   /* fração: numerador em cima, denominador embaixo */
@@ -277,12 +328,24 @@
   .fracao > span { padding: 0 4px; }
   .fracao > span:first-child { border-bottom: 1.5px solid currentColor; }
 
-  /* raiz quadrada com a barra por cima */
-  .raiz { white-space: nowrap; }
+  /* raiz quadrada: o símbolo √ é um desenho (SVG) que estica junto com o conteúdo */
+  .raiz {
+    display: inline-flex;
+    align-items: stretch;
+    vertical-align: middle;
+  }
+  .raiz-simbolo { width: 0.6em; display: block; }
+  .raiz-simbolo svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .raiz-simbolo path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .raiz-conteudo {
-    display: inline-block;
     border-top: 1.5px solid currentColor;
-    padding: 2px 3px 0;
+    padding: 2px 4px 0;
   }
   .parentese { font-size: 2.6rem; vertical-align: middle; font-weight: 300; }
 
@@ -411,11 +474,129 @@
   .alerta-ruim { background: #3a1616; color: #ff9a9a; border: 1px solid #6b2a2a; }
   .alerta-bom { background: #12301f; color: var(--verde-texto-escuro); border: 1px solid #22573a; }
 
+  /* ---------- Botão de ajuda (fica sempre no canto da tela) ---------- */
+  .botao-ajuda {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px 10px 10px;
+    border: none;
+    border-radius: 999px;
+    background: var(--preto);
+    color: var(--branco);
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+  .botao-ajuda:hover { background: var(--verde-escuro); }
+  .botao-ajuda .simbolo-ajuda {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--verde);
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+  }
+
+  /* ---------- Janela de ajuda com todas as fórmulas ---------- */
+  .janela-ajuda {
+    width: min(1040px, calc(100% - 32px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: var(--cinza-claro);
+    color: var(--preto);
+  }
+  .janela-ajuda::backdrop { background: rgba(20, 20, 20, 0.6); }
+  .janela-topo {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--preto);
+    color: var(--branco);
+  }
+  .janela-topo h2 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+  .janela-topo h2 span { color: var(--verde-texto-escuro); }
+  .botao-fechar {
+    background: none;
+    border: none;
+    color: var(--branco);
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .janela-conteudo { padding: 20px; }
+  .ajuda-grade {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .ajuda-cartao {
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    padding: 18px;
+  }
+  .ajuda-cartao h3 {
+    margin: 0 0 12px;
+    text-align: center;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--verde);
+  }
+  /* o maiúsculo do título não pode transformar α em A */
+  .ajuda-cartao h3 sub { text-transform: none; }
+  .ajuda-cartao .formula { font-size: 2rem; margin-bottom: 8px; }
+  .ajuda-cartao .formula:last-child { margin-bottom: 0; }
+  .ajuda-regras { margin-top: 16px; }
+  .ajuda-regras ul { margin: 0; padding-left: 20px; }
+  .ajuda-regras li { margin-bottom: 4px; }
+
+  .tabela-z {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 1.05rem;
+  }
+  .tabela-z th {
+    font-size: 0.8rem;
+    color: var(--cinza);
+    font-weight: 600;
+    padding: 6px;
+    border-bottom: 1px solid var(--borda);
+  }
+  .tabela-z td { padding: 8px 6px; border-bottom: 1px solid var(--cinza-claro); }
+  .tabela-z .valor-da-tabela {
+    font-family: var(--letra-de-mao);
+    font-weight: 700;
+    font-size: 1.7rem;
+    line-height: 1;
+  }
+
   /* ---------- Celular ---------- */
   @media (max-width: 760px) {
+    .ajuda-grade { grid-template-columns: 1fr; }
+    .ajuda-cartao .formula { font-size: 1.6rem; }
+    .janela-conteudo { padding: 12px; }
+    .botao-ajuda .texto-ajuda { display: none; }
+    .botao-ajuda { padding: 8px; }
     body { font-size: 16px; }
     .grade { grid-template-columns: 1fr; }
-    .formula { font-size: 1.35rem; }
+    .formula { font-size: 1.9rem; }
     .numero-resposta strong { font-size: 1.8rem; }
     .linha-confianca { grid-template-columns: 1fr; }
     .passos .conta { font-size: 1.05rem; }
@@ -487,13 +668,13 @@
       <div class="cartao cartao-formula">
         <h2>Fórmula</h2>
         <div class="formula">
-          <i>n</i> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span><i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+          <span class="resultado"><i>n</i></span> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span><i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
         </div>
         <dl class="legenda">
-          <dt>n</dt><dd>tamanho da amostra</dd>
-          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
-          <dt>σ</dt><dd>desvio padrão populacional</dd>
-          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
+          <dt>n</dt><dd><b>tamanho da amostra</b> – quantos elementos precisamos pesquisar (é a resposta)</dd>
+          <dt>z<sub>α/2</sub></dt><dd><b>valor crítico</b> – número da tabela normal que depende da confiança: 90% → 1,645 · 95% → 1,96 · 99% → 2,575</dd>
+          <dt>σ</dt><dd><b>desvio padrão populacional</b> – o quanto os valores costumam variar em torno da média</dd>
+          <dt>E<sub>m</sub></dt><dd><b>erro da média</b> – a maior diferença que aceitamos entre a média da amostra e a média real</dd>
         </dl>
       </div>
     </div>
@@ -562,14 +743,14 @@
       <div class="cartao cartao-formula">
         <h2>Fórmula</h2>
         <div class="formula">
-          <i>n</i> = <span class="fracao"><span><i>z</i><sub>α/2</sub><sup>2</sup> · <i>p</i>(1 − <i>p</i>)</span><span><i>E</i><sub>p</sub><sup>2</sup></span></span>
+          <span class="resultado"><i>n</i></span> = <span class="fracao"><span><i>z</i><sub>α/2</sub><sup>2</sup> · <i>p</i>(1 − <i>p</i>)</span><span><i>E</i><sub>p</sub><sup>2</sup></span></span>
         </div>
         <dl class="legenda">
-          <dt>n</dt><dd>tamanho da amostra</dd>
-          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
-          <dt>p</dt><dd>proporção (em decimal: 30% = 0,3)</dd>
-          <dt>1 − p</dt><dd>complemento da proporção</dd>
-          <dt>E<sub>p</sub></dt><dd>erro da proporção (em decimal: 2% = 0,02)</dd>
+          <dt>n</dt><dd><b>tamanho da amostra</b> – quantos elementos precisamos pesquisar (é a resposta)</dd>
+          <dt>z<sub>α/2</sub></dt><dd><b>valor crítico</b> – número da tabela normal que depende da confiança: 90% → 1,645 · 95% → 1,96 · 99% → 2,575</dd>
+          <dt>p</dt><dd><b>proporção</b> – a parte que tem a característica pesquisada, em decimal (30% = 0,3). Se não souber, use 50%</dd>
+          <dt>1 − p</dt><dd><b>complemento</b> – a parte que não tem a característica (se p = 0,3, então 1 − p = 0,7)</dd>
+          <dt>E<sub>p</sub></dt><dd><b>erro da proporção</b> – quantos pontos percentuais para mais ou para menos aceitamos, em decimal (2% = 0,02)</dd>
         </dl>
       </div>
     </div>
@@ -635,22 +816,23 @@
       <div class="cartao cartao-formula">
         <h2>Fórmulas</h2>
         <div class="formula">
-          <i>E</i><sub>m</sub> = <i>z</i><sub>α/2</sub> · <span class="fracao"><span><i>σ</i></span><span><span class="raiz">√<span class="raiz-conteudo"><i>n</i></span></span></span></span>
+          <span class="resultado"><i>E</i><sub>m</sub></span> = <i>z</i><sub>α/2</sub> · <span class="fracao"><span><i>σ</i></span><span><span class="raiz"><span class="raiz-simbolo"><svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg></span><span class="raiz-conteudo"><i>n</i></span></span></span></span>
         </div>
         <div class="formula">
-          <i>x̄</i> − <i>E</i><sub>m</sub> &lt; <i>μ</i> &lt; <i>x̄</i> + <i>E</i><sub>m</sub>
+          <span class="xbarra">x</span> − <i>E</i><sub>m</sub> &lt; <i>μ</i> &lt; <span class="xbarra">x</span> + <i>E</i><sub>m</sub>
         </div>
         <div class="formula">
-          <i>IC</i> = ( <i>x̄</i> − <i>E</i><sub>m</sub> ; <i>x̄</i> + <i>E</i><sub>m</sub> )
+          <span class="resultado"><i>IC</i></span> = ( <span class="xbarra">x</span> − <i>E</i><sub>m</sub> ; <span class="xbarra">x</span> + <i>E</i><sub>m</sub> )
         </div>
         <dl class="legenda">
-          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
-          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
-          <dt>σ</dt><dd>desvio padrão populacional</dd>
-          <dt>s</dt><dd>desvio padrão amostral</dd>
-          <dt>n</dt><dd>tamanho da amostra</dd>
-          <dt>x̄</dt><dd>média amostral</dd>
-          <dt>μ</dt><dd>média populacional (o que queremos estimar)</dd>
+          <dt>E<sub>m</sub></dt><dd><b>erro da média</b> – quanto somamos e subtraímos da média para formar o intervalo</dd>
+          <dt>z<sub>α/2</sub></dt><dd><b>valor crítico</b> – número da tabela normal que depende da confiança: 90% → 1,645 · 95% → 1,96 · 99% → 2,575</dd>
+          <dt>σ</dt><dd><b>desvio padrão populacional</b> – o quanto os valores da população variam</dd>
+          <dt>s</dt><dd><b>desvio padrão amostral</b> – a variação medida na amostra; pode substituir σ quando n &gt; 30</dd>
+          <dt>n</dt><dd><b>tamanho da amostra</b> – quantos elementos foram pesquisados</dd>
+          <dt>x̄</dt><dd><b>média amostral</b> – a média que encontramos na amostra (o centro do intervalo)</dd>
+          <dt>μ</dt><dd><b>média populacional</b> – a média real, que não conhecemos e queremos estimar</dd>
+          <dt>IC</dt><dd><b>intervalo de confiança</b> – a faixa de valores onde deve estar a média real</dd>
         </dl>
       </div>
     </div>
@@ -719,21 +901,22 @@
       <div class="cartao cartao-formula">
         <h2>Fórmulas</h2>
         <div class="formula">
-          <i>p</i> = <span class="fracao"><span>número de sucessos</span><span><i>n</i></span></span>
+          <span class="resultado"><i>p</i></span> = <span class="fracao"><span>nº de sucessos</span><span><i>n</i></span></span>
         </div>
         <div class="formula">
-          <i>E</i><sub>p</sub> = <i>z</i><sub>α/2</sub> · <span class="raiz">√<span class="raiz-conteudo"><span class="fracao"><span><i>p</i>(1 − <i>p</i>)</span><span><i>n</i></span></span></span></span>
+          <span class="resultado"><i>E</i><sub>p</sub></span> = <i>z</i><sub>α/2</sub> · <span class="raiz"><span class="raiz-simbolo"><svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg></span><span class="raiz-conteudo"><span class="fracao"><span><i>p</i>(1 − <i>p</i>)</span><span><i>n</i></span></span></span></span>
         </div>
         <div class="formula">
-          <i>IC</i> = ( <i>p</i> − <i>E</i><sub>p</sub> ; <i>p</i> + <i>E</i><sub>p</sub> )
+          <span class="resultado"><i>IC</i></span> = ( <i>p</i> − <i>E</i><sub>p</sub> ; <i>p</i> + <i>E</i><sub>p</sub> )
         </div>
         <dl class="legenda">
-          <dt>p</dt><dd>proporção amostral</dd>
-          <dt>1 − p</dt><dd>complemento</dd>
-          <dt>E<sub>p</sub></dt><dd>erro da proporção</dd>
-          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
-          <dt>n</dt><dd>tamanho da amostra</dd>
-          <dt>π</dt><dd>proporção populacional (o que queremos estimar)</dd>
+          <dt>p</dt><dd><b>proporção amostral</b> – a fração de sucessos na amostra (ex.: 34 de 200 = 0,17)</dd>
+          <dt>1 − p</dt><dd><b>complemento</b> – a fração que não é sucesso (1 − 0,17 = 0,83)</dd>
+          <dt>E<sub>p</sub></dt><dd><b>erro da proporção</b> – quanto somamos e subtraímos de p para formar o intervalo</dd>
+          <dt>z<sub>α/2</sub></dt><dd><b>valor crítico</b> – número da tabela normal que depende da confiança: 90% → 1,645 · 95% → 1,96 · 99% → 2,575</dd>
+          <dt>n</dt><dd><b>tamanho da amostra</b> – quantos elementos foram pesquisados</dd>
+          <dt>π</dt><dd><b>proporção populacional</b> – a proporção real, que não conhecemos e queremos estimar</dd>
+          <dt>IC</dt><dd><b>intervalo de confiança</b> – a faixa de porcentagens onde deve estar a proporção real</dd>
         </dl>
       </div>
     </div>
@@ -805,17 +988,17 @@
       <div class="cartao cartao-formula">
         <h2>Fórmulas</h2>
         <div class="formula">
-          novo <i>E</i><sub>m</sub> = <span class="fracao"><span><i>E</i><sub>m</sub></span><span><i>k</i></span></span>
+          <span class="resultado">novo <i>E</i><sub>m</sub></span> = <span class="fracao"><span><i>E</i><sub>m</sub></span><span><i>k</i></span></span>
         </div>
         <div class="formula">
-          novo <i>n</i> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span>novo <i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+          <span class="resultado">novo <i>n</i></span> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span>novo <i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
         </div>
         <dl class="legenda">
-          <dt>E<sub>m</sub></dt><dd>erro (margem de erro) da média</dd>
-          <dt>k</dt><dd>quantas vezes o erro vai diminuir</dd>
-          <dt>z<sub>α/2</sub></dt><dd>valor crítico (depende da confiança)</dd>
-          <dt>σ</dt><dd>desvio padrão (ou s, se n &gt; 30)</dd>
-          <dt>n</dt><dd>tamanho da amostra</dd>
+          <dt>E<sub>m</sub></dt><dd><b>erro atual da média</b> – calculado com os dados de agora: z<sub>α/2</sub> · σ / √n</dd>
+          <dt>k</dt><dd><b>fator</b> – quantas vezes queremos diminuir o erro (2 = metade, 3 = um terço)</dd>
+          <dt>z<sub>α/2</sub></dt><dd><b>valor crítico</b> – número da tabela normal que depende da confiança: 90% → 1,645 · 95% → 1,96 · 99% → 2,575</dd>
+          <dt>σ</dt><dd><b>desvio padrão</b> – o quanto os valores variam (pode ser s, se n &gt; 30)</dd>
+          <dt>n</dt><dd><b>tamanho da amostra</b> – o novo n é quantos elementos precisaremos pesquisar</dd>
         </dl>
       </div>
     </div>
@@ -836,6 +1019,50 @@
   </section>
 
 </main>
+
+<!-- =========================================================
+     AJUDA – botão no canto e janela com todas as fórmulas
+     (as fórmulas são copiadas das abas pelo JavaScript)
+     ========================================================= -->
+<button type="button" class="botao-ajuda" id="botao-ajuda" aria-label="Ver todas as fórmulas">
+  <span class="simbolo-ajuda">?</span><span class="texto-ajuda">Fórmulas</span>
+</button>
+
+<dialog class="janela-ajuda" id="janela-ajuda" aria-labelledby="titulo-ajuda">
+  <div class="janela-topo">
+    <h2 id="titulo-ajuda">Todas as <span>fórmulas</span></h2>
+    <button type="button" class="botao-fechar" id="botao-fechar-ajuda" aria-label="Fechar">×</button>
+  </div>
+  <div class="janela-conteudo">
+    <div class="ajuda-grade" id="ajuda-grade">
+      <section class="ajuda-cartao" id="ajuda-valor-critico">
+        <h3>Valor crítico z<sub>α/2</sub></h3>
+        <table class="tabela-z">
+          <thead>
+            <tr><th>Grau de confiança</th><th>α</th><th>z<sub>α/2</sub></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>90%</td><td>0,10</td><td class="valor-da-tabela">1,645</td></tr>
+            <tr><td>95%</td><td>0,05</td><td class="valor-da-tabela">1,96</td></tr>
+            <tr><td>99%</td><td>0,01</td><td class="valor-da-tabela">2,575</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="ajuda-cartao ajuda-regras">
+      <h3>Regras para lembrar</h3>
+      <ul>
+        <li>Tamanho da amostra: <b>sempre arredonda para cima</b>, nunca para baixo.</li>
+        <li>p desconhecido: use <b>p = 50%</b>, porque p · (1 − p) atinge o máximo (0,25).</li>
+        <li>Se <b>n &gt; 30</b>, pode-se usar o desvio amostral <b>s</b> no lugar de <b>σ</b>.</li>
+        <li>Erro e p em %: converta para decimal antes da conta (5% = 0,05).</li>
+        <li>Quanto maior a confiança, maior a amostra e maior a amplitude do intervalo.</li>
+        <li>Erro dividido por k → amostra k² vezes maior (erro pela metade → amostra 4 vezes maior).</li>
+      </ul>
+    </section>
+  </div>
+</dialog>
 
 <script>
 /* =================================================================
@@ -866,9 +1093,15 @@ function fracao(numerador, denominador) {
   return '<span class="fracao"><span>' + numerador + "</span><span>" + denominador + "</span></span>";
 }
 
+// Desenho do símbolo √ (estica junto com o que está dentro da raiz)
+const DESENHO_DA_RAIZ =
+  '<svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true">' +
+  '<path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg>';
+
 // Monta uma raiz quadrada com a barra por cima do conteúdo
 function raiz(conteudo) {
-  return '<span class="raiz">√<span class="raiz-conteudo">' + conteudo + "</span></span>";
+  return '<span class="raiz"><span class="raiz-simbolo">' + DESENHO_DA_RAIZ + "</span>" +
+         '<span class="raiz-conteudo">' + conteudo + "</span></span>";
 }
 
 // ---------- 3. Números: ler, arredondar e mostrar com vírgula ----------
@@ -1190,6 +1423,54 @@ botoesDasAbas.forEach(function (botao) {
   botao.addEventListener("click", function () {
     mostrarAba(botao.dataset.aba);
   });
+});
+
+// ---------- 8. Janela de ajuda com todas as fórmulas ----------
+const botaoAjuda = document.getElementById("botao-ajuda");
+const janelaDeAjuda = document.getElementById("janela-ajuda");
+const botaoFecharAjuda = document.getElementById("botao-fechar-ajuda");
+
+// Copia as fórmulas de cada aba para a janela de ajuda.
+// Assim cada fórmula só é escrita uma vez no HTML.
+function montarAjudaDasFormulas() {
+  const gradeDaAjuda = document.getElementById("ajuda-grade");
+  const cartaoDoValorCritico = document.getElementById("ajuda-valor-critico");
+
+  todasAsAbas.forEach(function (aba) {
+    const cartao = document.createElement("section");
+    cartao.className = "ajuda-cartao";
+
+    const titulo = document.createElement("h3");
+    titulo.textContent = aba.querySelector(".titulo-aba").textContent;
+    cartao.appendChild(titulo);
+
+    const formulasDaAba = aba.querySelectorAll(".formula");
+    formulasDaAba.forEach(function (formula) {
+      const copiaDaFormula = formula.cloneNode(true);
+      cartao.appendChild(copiaDaFormula);
+    });
+
+    // As abas entram antes da tabela de valores críticos (que fica por último)
+    gradeDaAjuda.insertBefore(cartao, cartaoDoValorCritico);
+  });
+}
+
+montarAjudaDasFormulas();
+
+botaoAjuda.addEventListener("click", function () {
+  janelaDeAjuda.showModal();
+});
+
+botaoFecharAjuda.addEventListener("click", function () {
+  janelaDeAjuda.close();
+});
+
+// Clicar na parte escura fora da janela também fecha
+janelaDeAjuda.addEventListener("click", function (evento) {
+  const clicouForaDaJanela = evento.target === janelaDeAjuda;
+  if (clicouForaDaJanela) {
+    janelaDeAjuda.close();
+  }
 });
 </script>
 
