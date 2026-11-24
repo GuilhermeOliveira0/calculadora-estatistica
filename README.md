@@ -12,7 +12,7 @@ Calculadora de **tamanho da amostra** e **intervalo de confiança** feita para a
 4. **Intervalo de confiança – Proporção**: Ep = zα/2 · √(p(1 − p) / n) e IC = (p − Ep ; p + Ep), com comparação opcional com um padrão aceitável
 5. **Diminuir o erro**: novo erro, novo tamanho da amostra e quanto a amostra precisa aumentar
 
-Cada aba mostra a fórmula (escrita à mão), a legenda explicando cada letra, o passo a passo com os números e a resposta final em uma frase. O menu "Carregar exemplo" traz os exercícios da aula.
+Cada aba mostra a fórmula (escrita à mão, com uma versão "em palavras" embaixo; passar o mouse ou tocar numa letra mostra o que ela significa), a legenda explicando cada letra, o passo a passo com os números e a resposta final em uma frase. O menu "Carregar exemplo" traz os exercícios da aula.
 
 O botão **? Fórmulas**, no canto da tela, abre uma janela com todas as fórmulas, a tabela de valores críticos e as regras principais.
 

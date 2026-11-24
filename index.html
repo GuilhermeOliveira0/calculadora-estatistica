@@ -474,6 +474,56 @@
   .alerta-ruim { background: #3a1616; color: #ff9a9a; border: 1px solid #6b2a2a; }
   .alerta-bom { background: #12301f; color: var(--verde-texto-escuro); border: 1px solid #22573a; }
 
+  /* ---------- Fórmula em palavras (linha embaixo de cada fórmula) ---------- */
+  .em-palavras {
+    display: block;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--borda);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--cinza);
+    white-space: normal;
+  }
+  .dica-letras {
+    margin: -8px 0 12px;
+    font-size: 0.85rem;
+    color: var(--cinza);
+  }
+
+  /* ---------- Letras da fórmula que mostram o significado ---------- */
+  .letra {
+    cursor: help;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+  }
+  .letra:hover,
+  .letra:focus,
+  .letra.ativa {
+    background-color: var(--verde-claro);
+    outline: none;
+  }
+
+  /* Balãozinho com o significado da letra */
+  .balao-dica {
+    position: fixed;
+    z-index: 50;
+    max-width: 280px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--preto);
+    color: var(--branco);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: left;
+    pointer-events: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+  .balao-dica b { color: var(--verde-texto-escuro); }
+
   /* ---------- Botão de ajuda (fica sempre no canto da tela) ---------- */
   .botao-ajuda {
     position: fixed;
@@ -667,8 +717,10 @@
 
       <div class="cartao cartao-formula">
         <h2>Fórmula</h2>
+        <p class="dica-letras">Passe o mouse ou toque numa letra para ver o que ela significa.</p>
         <div class="formula">
-          <span class="resultado"><i>n</i></span> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span><i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+          <span class="resultado"><span class="letra" data-letra="n">n</span></span> = <span class="parentese">(</span><span class="fracao"><span><span class="letra" data-letra="z">z<sub>α/2</sub></span> · <span class="letra" data-letra="sigma">σ</span></span><span><span class="letra" data-letra="em">E<sub>m</sub></span></span></span><span class="parentese">)</span><sup>2</sup>
+          <span class="em-palavras">tamanho da amostra = (valor crítico × desvio padrão ÷ erro)²</span>
         </div>
         <dl class="legenda">
           <dt>n</dt><dd><b>tamanho da amostra</b> – quantos elementos precisamos pesquisar (é a resposta)</dd>
@@ -742,8 +794,10 @@
 
       <div class="cartao cartao-formula">
         <h2>Fórmula</h2>
+        <p class="dica-letras">Passe o mouse ou toque numa letra para ver o que ela significa.</p>
         <div class="formula">
-          <span class="resultado"><i>n</i></span> = <span class="fracao"><span><i>z</i><sub>α/2</sub><sup>2</sup> · <i>p</i>(1 − <i>p</i>)</span><span><i>E</i><sub>p</sub><sup>2</sup></span></span>
+          <span class="resultado"><span class="letra" data-letra="n">n</span></span> = <span class="fracao"><span><span class="letra" data-letra="z">z<sub>α/2</sub></span><sup>2</sup> · <span class="letra" data-letra="p">p</span><span class="letra" data-letra="complemento">(1 − p)</span></span><span><span class="letra" data-letra="ep">E<sub>p</sub></span><sup>2</sup></span></span>
+          <span class="em-palavras">tamanho da amostra = valor crítico² × proporção × complemento ÷ erro²</span>
         </div>
         <dl class="legenda">
           <dt>n</dt><dd><b>tamanho da amostra</b> – quantos elementos precisamos pesquisar (é a resposta)</dd>
@@ -815,14 +869,18 @@
 
       <div class="cartao cartao-formula">
         <h2>Fórmulas</h2>
+        <p class="dica-letras">Passe o mouse ou toque numa letra para ver o que ela significa.</p>
         <div class="formula">
-          <span class="resultado"><i>E</i><sub>m</sub></span> = <i>z</i><sub>α/2</sub> · <span class="fracao"><span><i>σ</i></span><span><span class="raiz"><span class="raiz-simbolo"><svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg></span><span class="raiz-conteudo"><i>n</i></span></span></span></span>
+          <span class="resultado"><span class="letra" data-letra="em">E<sub>m</sub></span></span> = <span class="letra" data-letra="z">z<sub>α/2</sub></span> · <span class="fracao"><span><span class="letra" data-letra="sigma">σ</span></span><span><span class="raiz"><span class="raiz-simbolo"><svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg></span><span class="raiz-conteudo"><span class="letra" data-letra="n">n</span></span></span></span></span>
+          <span class="em-palavras">erro = valor crítico × desvio padrão ÷ raiz do tamanho da amostra</span>
         </div>
         <div class="formula">
-          <span class="xbarra">x</span> − <i>E</i><sub>m</sub> &lt; <i>μ</i> &lt; <span class="xbarra">x</span> + <i>E</i><sub>m</sub>
+          <span class="letra" data-letra="xbarra"><span class="xbarra">x</span></span> − <span class="letra" data-letra="em">E<sub>m</sub></span> &lt; <span class="letra" data-letra="mu">μ</span> &lt; <span class="letra" data-letra="xbarra"><span class="xbarra">x</span></span> + <span class="letra" data-letra="em">E<sub>m</sub></span>
+          <span class="em-palavras">a média real fica entre (média − erro) e (média + erro)</span>
         </div>
         <div class="formula">
-          <span class="resultado"><i>IC</i></span> = ( <span class="xbarra">x</span> − <i>E</i><sub>m</sub> ; <span class="xbarra">x</span> + <i>E</i><sub>m</sub> )
+          <span class="resultado"><span class="letra" data-letra="ic">IC</span></span> = ( <span class="letra" data-letra="xbarra"><span class="xbarra">x</span></span> − <span class="letra" data-letra="em">E<sub>m</sub></span> ; <span class="letra" data-letra="xbarra"><span class="xbarra">x</span></span> + <span class="letra" data-letra="em">E<sub>m</sub></span> )
+          <span class="em-palavras">intervalo = (média − erro ; média + erro)</span>
         </div>
         <dl class="legenda">
           <dt>E<sub>m</sub></dt><dd><b>erro da média</b> – quanto somamos e subtraímos da média para formar o intervalo</dd>
@@ -900,14 +958,22 @@
 
       <div class="cartao cartao-formula">
         <h2>Fórmulas</h2>
+        <p class="dica-letras">Passe o mouse ou toque numa letra para ver o que ela significa.</p>
         <div class="formula">
-          <span class="resultado"><i>p</i></span> = <span class="fracao"><span>nº de sucessos</span><span><i>n</i></span></span>
+          <span class="resultado"><span class="letra" data-letra="p">p</span></span> = <span class="fracao"><span><span class="letra" data-letra="sucessos">nº de sucessos</span></span><span><span class="letra" data-letra="n">n</span></span></span>
+          <span class="em-palavras">proporção = sucessos ÷ tamanho da amostra</span>
         </div>
         <div class="formula">
-          <span class="resultado"><i>E</i><sub>p</sub></span> = <i>z</i><sub>α/2</sub> · <span class="raiz"><span class="raiz-simbolo"><svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg></span><span class="raiz-conteudo"><span class="fracao"><span><i>p</i>(1 − <i>p</i>)</span><span><i>n</i></span></span></span></span>
+          <span class="resultado"><span class="letra" data-letra="ep">E<sub>p</sub></span></span> = <span class="letra" data-letra="z">z<sub>α/2</sub></span> · <span class="raiz"><span class="raiz-simbolo"><svg viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 18 L3 16 L6 29 L10 0"/></svg></span><span class="raiz-conteudo"><span class="fracao"><span><span class="letra" data-letra="p">p</span><span class="letra" data-letra="complemento">(1 − p)</span></span><span><span class="letra" data-letra="n">n</span></span></span></span></span>
+          <span class="em-palavras">erro = valor crítico × raiz de (proporção × complemento ÷ tamanho da amostra)</span>
         </div>
         <div class="formula">
-          <span class="resultado"><i>IC</i></span> = ( <i>p</i> − <i>E</i><sub>p</sub> ; <i>p</i> + <i>E</i><sub>p</sub> )
+          <span class="letra" data-letra="p">p</span> − <span class="letra" data-letra="ep">E<sub>p</sub></span> &lt; <span class="letra" data-letra="pi">π</span> &lt; <span class="letra" data-letra="p">p</span> + <span class="letra" data-letra="ep">E<sub>p</sub></span>
+          <span class="em-palavras">a proporção real fica entre (p − erro) e (p + erro)</span>
+        </div>
+        <div class="formula">
+          <span class="resultado"><span class="letra" data-letra="ic">IC</span></span> = ( <span class="letra" data-letra="p">p</span> − <span class="letra" data-letra="ep">E<sub>p</sub></span> ; <span class="letra" data-letra="p">p</span> + <span class="letra" data-letra="ep">E<sub>p</sub></span> )
+          <span class="em-palavras">intervalo = (proporção − erro ; proporção + erro)</span>
         </div>
         <dl class="legenda">
           <dt>p</dt><dd><b>proporção amostral</b> – a fração de sucessos na amostra (ex.: 34 de 200 = 0,17)</dd>
@@ -987,11 +1053,14 @@
 
       <div class="cartao cartao-formula">
         <h2>Fórmulas</h2>
+        <p class="dica-letras">Passe o mouse ou toque numa letra para ver o que ela significa.</p>
         <div class="formula">
-          <span class="resultado">novo <i>E</i><sub>m</sub></span> = <span class="fracao"><span><i>E</i><sub>m</sub></span><span><i>k</i></span></span>
+          <span class="resultado">novo <span class="letra" data-letra="em">E<sub>m</sub></span></span> = <span class="fracao"><span><span class="letra" data-letra="em">E<sub>m</sub></span></span><span><span class="letra" data-letra="k">k</span></span></span>
+          <span class="em-palavras">novo erro = erro atual ÷ k</span>
         </div>
         <div class="formula">
-          <span class="resultado">novo <i>n</i></span> = <span class="parentese">(</span><span class="fracao"><span><i>z</i><sub>α/2</sub> · <i>σ</i></span><span>novo <i>E</i><sub>m</sub></span></span><span class="parentese">)</span><sup>2</sup>
+          <span class="resultado">novo <span class="letra" data-letra="n">n</span></span> = <span class="parentese">(</span><span class="fracao"><span><span class="letra" data-letra="z">z<sub>α/2</sub></span> · <span class="letra" data-letra="sigma">σ</span></span><span>novo <span class="letra" data-letra="em">E<sub>m</sub></span></span></span><span class="parentese">)</span><sup>2</sup>
+          <span class="em-palavras">novo tamanho = (valor crítico × desvio padrão ÷ novo erro)²</span>
         </div>
         <dl class="legenda">
           <dt>E<sub>m</sub></dt><dd><b>erro atual da média</b> – calculado com os dados de agora: z<sub>α/2</sub> · σ / √n</dd>
@@ -1024,6 +1093,8 @@
      AJUDA – botão no canto e janela com todas as fórmulas
      (as fórmulas são copiadas das abas pelo JavaScript)
      ========================================================= -->
+<div class="balao-dica" id="balao-dica" role="tooltip" hidden></div>
+
 <button type="button" class="botao-ajuda" id="botao-ajuda" aria-label="Ver todas as fórmulas">
   <span class="simbolo-ajuda">?</span><span class="texto-ajuda">Fórmulas</span>
 </button>
@@ -1472,6 +1543,100 @@ janelaDeAjuda.addEventListener("click", function (evento) {
     janelaDeAjuda.close();
   }
 });
+
+// ---------- 9. Balãozinho: passar o mouse ou tocar numa letra da fórmula ----------
+// No HTML, cada letra está marcada assim: <span class="letra" data-letra="sigma">σ</span>
+const SIGNIFICADO_DAS_LETRAS = {
+  n: "<b>n</b> = tamanho da amostra: quantos elementos são pesquisados",
+  z: "<b>z<sub>α/2</sub></b> = valor crítico, vem da tabela: 90% → 1,645 · 95% → 1,96 · 99% → 2,575",
+  sigma: "<b>σ</b> = desvio padrão: o quanto os valores variam em torno da média",
+  em: "<b>E<sub>m</sub></b> = erro da média: quanto a média da amostra pode errar, para mais ou para menos",
+  ep: "<b>E<sub>p</sub></b> = erro da proporção: quantos pontos percentuais para mais ou para menos",
+  p: "<b>p</b> = proporção: a parte que tem a característica, em decimal (30% = 0,3)",
+  complemento: "<b>1 − p</b> = complemento: a parte que não tem a característica (se p = 0,3, é 0,7)",
+  xbarra: "<b>x̄</b> = média amostral: a média encontrada na amostra",
+  mu: "<b>μ</b> = média populacional: a média real, que queremos estimar",
+  pi: "<b>π</b> = proporção populacional: a proporção real, que queremos estimar",
+  ic: "<b>IC</b> = intervalo de confiança: a faixa onde deve estar o valor real",
+  k: "<b>k</b> = quantas vezes o erro vai diminuir (2 = metade, 3 = um terço)",
+  sucessos: "<b>nº de sucessos</b> = quantos elementos da amostra têm a característica pesquisada",
+};
+
+const balaoDica = document.getElementById("balao-dica");
+const DISTANCIA_DO_BALAO = 10;
+
+function mostrarBalao(letra) {
+  balaoDica.innerHTML = SIGNIFICADO_DAS_LETRAS[letra.dataset.letra];
+
+  // Com a janela de ajuda aberta, o balão precisa ficar dentro dela para aparecer por cima
+  const lugarDoBalao = janelaDeAjuda.open ? janelaDeAjuda : document.body;
+  lugarDoBalao.appendChild(balaoDica);
+  balaoDica.hidden = false;
+
+  // Centraliza o balão em cima da letra, sem deixar sair da tela
+  const posicaoDaLetra = letra.getBoundingClientRect();
+  const larguraDoBalao = balaoDica.offsetWidth;
+  const alturaDoBalao = balaoDica.offsetHeight;
+  const centroDaLetra = posicaoDaLetra.left + posicaoDaLetra.width / 2;
+  const limiteDaDireita = window.innerWidth - larguraDoBalao - 8;
+  const esquerda = Math.min(Math.max(centroDaLetra - larguraDoBalao / 2, 8), limiteDaDireita);
+
+  // Se não couber em cima da letra, mostra embaixo
+  let topo = posicaoDaLetra.top - alturaDoBalao - DISTANCIA_DO_BALAO;
+  const naoCabeEmCima = topo < 8;
+  if (naoCabeEmCima) {
+    topo = posicaoDaLetra.bottom + DISTANCIA_DO_BALAO;
+  }
+
+  balaoDica.style.left = esquerda + "px";
+  balaoDica.style.top = topo + "px";
+  letra.classList.add("ativa");
+}
+
+function esconderBalao() {
+  balaoDica.hidden = true;
+  document.querySelectorAll(".letra.ativa").forEach(function (letra) {
+    letra.classList.remove("ativa");
+  });
+}
+
+// Deixa as letras alcançáveis pelo teclado (Tab) também
+document.querySelectorAll(".letra").forEach(function (letra) {
+  letra.tabIndex = 0;
+});
+
+// Um único "ouvinte" na página serve para todas as letras (inclusive as da janela de ajuda)
+document.addEventListener("mouseover", function (evento) {
+  const letra = evento.target.closest(".letra");
+  if (letra) {
+    mostrarBalao(letra);
+  }
+});
+document.addEventListener("mouseout", function (evento) {
+  const saiuDeUmaLetra = evento.target.closest(".letra");
+  if (saiuDeUmaLetra) {
+    esconderBalao();
+  }
+});
+document.addEventListener("focusin", function (evento) {
+  const letra = evento.target.closest(".letra");
+  if (letra) {
+    mostrarBalao(letra);
+  }
+});
+document.addEventListener("focusout", esconderBalao);
+
+// No celular não existe "passar o mouse": tocar na letra mostra, tocar fora esconde
+document.addEventListener("click", function (evento) {
+  const letra = evento.target.closest(".letra");
+  if (letra) {
+    mostrarBalao(letra);
+  } else {
+    esconderBalao();
+  }
+});
+window.addEventListener("scroll", esconderBalao, true);
+janelaDeAjuda.addEventListener("close", esconderBalao);
 </script>
 
 <!-- ABAS_TAMANHO: abas "am", "ap" e "de" -->
